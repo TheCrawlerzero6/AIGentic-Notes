@@ -14,21 +14,20 @@ import 'ui/screens/home/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar base de datos SQLite
+  // Inicializar base de datos SQLite (bloqueante - crítico)
   try {
     await DatabaseHelper.instance.database;
+    debugPrint('Base de datos inicializada');
   } catch (e) {
     debugPrint('Error al inicializar base de datos: $e');
   }
 
-  // Inicializar servicio de notificaciones
-  // FASE 5: Solicitar permisos al iniciar la app
-  try {
-    await NotificationService().initialize();
+  // Inicializar notificaciones (no bloqueante)
+  NotificationService().initialize().then((_) async {
     await NotificationService().requestPermissions();
-  } catch (e) {
+  }).catchError((e) {
     debugPrint('Error al inicializar notificaciones: $e');
-  }
+  });
 
   runApp(const MyApp());
 }
@@ -39,6 +38,7 @@ void main() async {
 /// - Providers para gestión de estado (Auth, Tasks)
 /// - Tema visual centralizado
 /// - Rutas de navegación
+/// - Restaura sesión automáticamente al iniciar
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -49,26 +49,42 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'AIGentic-Notes',
-        theme: AppTheme.lightTheme,
-        
-        // Configuración de localización para DatePicker/TimePicker
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es', 'ES'),
-          Locale('en', 'US'),
-        ],
-        
-        home: const LoginScreen(),
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/home': (context) => const HomeScreen(),
+      child: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'AIGentic-Notes',
+            theme: AppTheme.lightTheme,
+            
+            // Configuración de localización para DatePicker/TimePicker
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('es', 'ES'),
+              Locale('en', 'US'),
+            ],
+            
+            home: FutureBuilder<bool>(
+              future: authProvider.checkSession(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                
+                final hasSession = snapshot.data ?? false;
+                return hasSession ? const HomeScreen() : const LoginScreen();
+              },
+            ),
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/home': (context) => const HomeScreen(),
+            },
+          );
         },
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'time_picker_spinner.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   final void Function(String title, String description, DateTime dueDate, int priority) onAdd;
@@ -53,16 +54,12 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
       return;
     }
 
-    final time = await showTimePicker(
+    final time = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-      initialEntryMode: TimePickerEntryMode.input, // Modo entrada para evitar bugs visuales
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
-        );
-      },
+      builder: (context) => TimePickerSpinner(
+        initialTime: _selectedTime ?? TimeOfDay.now(),
+        onTimeSelected: (selectedTime) {},
+      ),
     );
 
     if (time != null) {
@@ -89,9 +86,29 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     final difference = dueDate.difference(now);
 
     if (difference.isNegative) return 'Fecha pasada';
-    if (difference.inMinutes < 60) return 'Vence en ${difference.inMinutes}m';
-    if (difference.inHours < 24) return 'Vence en ${difference.inHours}h ${difference.inMinutes.remainder(60)}m';
-    return 'Vence en ${difference.inDays}d ${difference.inHours.remainder(24)}h';
+    
+    final totalSeconds = difference.inSeconds;
+    final minutes = (totalSeconds / 60).ceil();
+    final hours = (totalSeconds / 3600).floor();
+    final days = (totalSeconds / 86400).floor();
+    
+    if (minutes < 60) {
+      return 'Vence en ${minutes}m';
+    } else if (hours < 24) {
+      final remainingMinutes = ((totalSeconds % 3600) / 60).ceil();
+      return 'Vence en ${hours}h ${remainingMinutes}m';
+    } else {
+      final remainingHours = ((totalSeconds % 86400) / 3600).floor();
+      return 'Vence en ${days}d ${remainingHours}h';
+    }
+  }
+
+  /// Formatea TimeOfDay a formato 12h AM/PM
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 
   void _handleAdd() {
@@ -231,7 +248,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                           label: Text(
                             _selectedTime == null
                                 ? 'Hora'
-                                : _selectedTime!.format(context),
+                                : _formatTime(_selectedTime!),
                             style: const TextStyle(fontSize: 14),
                           ),
                           style: OutlinedButton.styleFrom(

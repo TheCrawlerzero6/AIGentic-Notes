@@ -153,21 +153,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     final difference = dueDate.difference(now);
                     
                     String timeLabel;
-                    if (difference.inMinutes < 0) {
+                    if (difference.inSeconds < 0) {
                       final absDiff = difference.abs();
-                      if (absDiff.inDays > 0) {
-                        timeLabel = 'Vencida hace ${absDiff.inDays}d';
-                      } else if (absDiff.inHours > 0) {
-                        timeLabel = 'Vencida hace ${absDiff.inHours}h';
+                      final minutes = (absDiff.inSeconds / 60).ceil();
+                      final hours = (absDiff.inSeconds / 3600).floor();
+                      final days = (absDiff.inSeconds / 86400).floor();
+                      
+                      if (days > 0) {
+                        timeLabel = 'Vencida hace ${days}d';
+                      } else if (hours > 0) {
+                        timeLabel = 'Vencida hace ${hours}h';
                       } else {
-                        timeLabel = 'Vencida hace ${absDiff.inMinutes}m';
+                        timeLabel = 'Vencida hace ${minutes}m';
                       }
-                    } else if (difference.inMinutes < 60) {
-                      timeLabel = 'Vence en ${difference.inMinutes}m';
-                    } else if (difference.inHours < 24) {
-                      timeLabel = 'Vence en ${difference.inHours}h ${difference.inMinutes.remainder(60)}m';
                     } else {
-                      timeLabel = 'Vence en ${difference.inDays}d ${difference.inHours.remainder(24)}h';
+                      final totalSeconds = difference.inSeconds;
+                      final minutes = (totalSeconds / 60).ceil();
+                      final hours = (totalSeconds / 3600).floor();
+                      final days = (totalSeconds / 86400).floor();
+                      
+                      if (minutes < 60) {
+                        timeLabel = 'Vence en ${minutes}m';
+                      } else if (hours < 24) {
+                        final remainingMinutes = ((totalSeconds % 3600) / 60).ceil();
+                        timeLabel = 'Vence en ${hours}h ${remainingMinutes}m';
+                      } else {
+                        final remainingHours = ((totalSeconds % 86400) / 3600).floor();
+                        timeLabel = 'Vence en ${days}d ${remainingHours}h';
+                      }
                     }
 
                     return Padding(

@@ -48,54 +48,67 @@ class NotificationService {
     );
 
     _initialized = true;
-    debugPrint('✅ NotificationService inicializado');
+    debugPrint('NotificationService inicializado');
   }
 
   /// Maneja el tap en una notificación
   void _onNotificationTap(NotificationResponse response) {
-    debugPrint('🔔 Notificación presionada: ${response.payload}');
-    // TODO FASE 6: Navegar a TaskDetailScreen con task ID del payload
+    debugPrint('Notificación presionada: ${response.payload}');
   }
 
   /// Solicita permisos en Android 13+
   Future<bool> requestPermissions() async {
+    debugPrint('Solicitando permisos de notificación...');
+    
     final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
-      final granted = await androidPlugin.requestNotificationsPermission();
-      debugPrint(granted == true 
-          ? '✅ Permisos de notificación concedidos'
-          : '❌ Permisos de notificación denegados');
-      return granted ?? false;
+      final hasPermission = await androidPlugin.areNotificationsEnabled();
+      debugPrint('Permisos actuales: ${hasPermission == true ? "concedidos" : "no concedidos"}');
+      
+      if (hasPermission != true) {
+        final granted = await androidPlugin.requestNotificationsPermission();
+        debugPrint(granted == true 
+            ? 'Permisos de notificación concedidos'
+            : 'Permisos de notificación denegados');
+        if (granted != true) return false;
+      }
+      
+      // Solicitar permiso de alarmas exactas (Android 12+)
+      final canScheduleExact = await androidPlugin.canScheduleExactNotifications();
+      debugPrint('Permiso de alarmas exactas: ${canScheduleExact == true ? "concedido" : "no concedido"}');
+      
+      if (canScheduleExact != true) {
+        debugPrint('Solicitando permiso de alarmas exactas...');
+        final exactGranted = await androidPlugin.requestExactAlarmsPermission();
+        debugPrint(exactGranted == true
+            ? 'Permiso de alarmas exactas concedido'
+            : 'Permiso de alarmas exactas denegado - las notificaciones pueden no funcionar con la app cerrada');
+        return exactGranted ?? false;
+      }
+      
+      return true;
     }
 
-    return true; // iOS/otras plataformas
+    return true;
   }
-
-  /// Programa una notificación en fecha/hora específica
-  /// 
-  /// Retorna el ID de la notificación generada
-  Future<int> scheduleNotification({
-    required String title,
-    required String body,
-    required DateTime scheduledDate,
-    String? payload,
-  }) async {
+  
+  /// Muestra notificación inmediata para testing
+  Future<void> showTestNotification() async {
     if (!_initialized) {
-      throw Exception('NotificationService no inicializado. Llama initialize() primero.');
+      await initialize();
     }
-
-    // Generar ID único basado en timestamp
-    final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
-
+    
     const androidDetails = AndroidNotificationDetails(
-      'tasks_channel', // ID del canal
-      'Recordatorios de Tareas', // Nombre del canal
+      'tasks_channel',
+      'Recordatorios de Tareas',
       channelDescription: 'Notificaciones para recordar tareas pendientes',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
+      playSound: true,
+      enableVibration: true,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -109,31 +122,106 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notifications.zonedSchedule(
-      notificationId,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
+    await _notifications.show(
+      99999,
+      'Test de Notificaciones',
+      'Las notificaciones funcionan correctamente',
       notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
+      payload: 'test',
+    );
+    
+    debugPrint('Notificación de prueba mostrada');
+  }
+
+  /// Programa una notificación en fecha/hora específica
+  /// 
+  /// Retorna el ID de la notificación generada
+  /// Lanza excepción si el servicio no está inicializado o la fecha es pasada
+  Future<int> scheduleNotification({
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    String? payload,
+  }) async {
+    if (!_initialized) {
+      debugPrint('NotificationService no inicializado. Intentando inicializar...');
+      try {
+        await initialize();
+      } catch (e) {
+        throw Exception('Error al inicializar NotificationService: $e');
+      }
+    }
+
+    // Validar que la fecha no sea pasada
+    final now = DateTime.now();
+    if (scheduledDate.isBefore(now)) {
+      debugPrint('Advertencia: Intentando programar notificación en fecha pasada: $scheduledDate vs ahora: $now');
+      throw Exception('No se puede programar notificación en fecha pasada');
+    }
+
+    // Generar ID único basado en timestamp
+    final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+    
+    debugPrint('Programando notificación #$notificationId para $scheduledDate (ahora: $now)');
+
+    const androidDetails = AndroidNotificationDetails(
+      'tasks_channel',
+      'Recordatorios de Tareas',
+      channelDescription: 'Notificaciones para recordar tareas pendientes',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      playSound: true,
+      enableVibration: true,
+      showWhen: true,
     );
 
-    debugPrint('🔔 Notificación programada #$notificationId para $scheduledDate');
-    return notificationId;
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    try {
+      await _notifications.zonedSchedule(
+        notificationId,
+        title,
+        body,
+        tz.TZDateTime.from(scheduledDate, tz.local),
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+
+      debugPrint('Notificación programada #$notificationId para $scheduledDate');
+      
+      // Verificar que se programó correctamente
+      final pending = await getPendingNotifications();
+      debugPrint('Total de notificaciones pendientes: ${pending.length}');
+      
+      return notificationId;
+    } catch (e) {
+      debugPrint('Error al programar notificación: $e');
+      rethrow;
+    }
   }
 
   /// Cancela una notificación por su ID
   Future<void> cancelNotification(int notificationId) async {
     await _notifications.cancel(notificationId);
-    debugPrint('🚫 Notificación #$notificationId cancelada');
+    debugPrint('Notificación #$notificationId cancelada');
   }
 
   /// Cancela todas las notificaciones pendientes
   Future<void> cancelAllNotifications() async {
     await _notifications.cancelAll();
-    debugPrint('🚫 Todas las notificaciones canceladas');
+    debugPrint('Todas las notificaciones canceladas');
   }
 
   /// Obtiene lista de notificaciones pendientes (debug)

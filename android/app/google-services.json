@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "584933742302",
+    "project_id": "aigentic-notes",
+    "storage_bucket": "aigentic-notes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584933742302:android:fe6fcd18aef5f48312144f",
+        "android_client_info": {
+          "package_name": "com.example.mi_agenda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAObGY5m9aJBP43HTRbXprQkI-mREgsbz8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

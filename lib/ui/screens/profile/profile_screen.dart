@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/task_provider.dart';
+import '../../../data/services/notification_service.dart';
 
 /// Pantalla de perfil de usuario
 /// 
@@ -174,6 +175,51 @@ class ProfileScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 40),
+
+              // Botón test notificaciones
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6750A4),
+                    side: const BorderSide(color: Color(0xFF6750A4)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () async {
+                    try {
+                      await NotificationService().showTestNotification();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Notificación de prueba enviada'),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.notifications_active),
+                  label: const Text(
+                    'Test Notificación',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
 
               // Botón cerrar sesión
               SizedBox(

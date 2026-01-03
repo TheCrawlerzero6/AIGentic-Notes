@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../data/models/task_model.dart';
 import '../../../providers/task_provider.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/time_picker_spinner.dart';
 
 /// Pantalla de detalle/edición de tarea
 /// 
@@ -66,9 +67,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   /// Abre selector de hora
   Future<void> _pickTime() async {
-    final pickedTime = await showTimePicker(
+    final pickedTime = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: _selectedTime,
+      builder: (context) => TimePickerSpinner(
+        initialTime: _selectedTime,
+        onTimeSelected: (selectedTime) {},
+      ),
     );
     if (pickedTime != null) {
       setState(() => _selectedTime = pickedTime);
@@ -263,7 +267,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       const Icon(Icons.access_time, size: 20),
                       const SizedBox(width: 12),
                       Text(
-                        _selectedTime.format(context),
+                        MaterialLocalizations.of(context).formatTimeOfDay(_selectedTime, alwaysUse24HourFormat: false),
                         style: const TextStyle(fontSize: 16),
                       ),
                     ],
@@ -304,7 +308,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
               if (widget.task.completedAt != null)
                 Text(
-                  'Completada: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(widget.task.completedAt!))}',
+                  'Completada: ${DateFormat('dd/MM/yyyy h:mm a').format(DateTime.parse(widget.task.completedAt!))}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
             ],

@@ -40,7 +40,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   /// Crea una nueva tarea
-  /// FASE 5: Programa notificación si la fecha es futura
+  /// Programa notificación si la fecha límite es futura
   Future<void> createTask(TaskModel task) async {
     try {
       final db = DatabaseHelper.instance;
@@ -48,18 +48,24 @@ class TaskProvider with ChangeNotifier {
       // Programar notificación si la fecha límite es futura
       int? notificationId;
       final dueDate = DateTime.parse(task.dueDate);
-      if (dueDate.isAfter(DateTime.now())) {
+      final now = DateTime.now();
+      
+      debugPrint('Creando tarea. Fecha límite: $dueDate, Ahora: $now');
+      
+      if (dueDate.isAfter(now)) {
         try {
           notificationId = await _notificationService.scheduleNotification(
-            title: '⏰ ${task.title}',
+            title: 'Recordatorio: ${task.title}',
             body: task.description,
             scheduledDate: dueDate,
             payload: task.id?.toString(),
           );
+          debugPrint('Notificación programada exitosamente con ID: $notificationId');
         } catch (e) {
-          debugPrint('⚠️ Error al programar notificación: $e');
-          // Continuar sin notificación si falla
+          debugPrint('Error al programar notificación: $e');
         }
+      } else {
+        debugPrint('Fecha límite no es futura, no se programa notificación');
       }
       
       // Crear tarea con notification_id
@@ -101,7 +107,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   /// Actualiza una tarea existente
-  /// FASE 5: Reprograma notificación si cambió la fecha
+  /// Reprograma notificación si cambió la fecha
   Future<void> updateTask(TaskModel task) async {
     try {
       final db = DatabaseHelper.instance;
@@ -111,24 +117,24 @@ class TaskProvider with ChangeNotifier {
         try {
           await _notificationService.cancelNotification(task.notificationId!);
         } catch (e) {
-          debugPrint('⚠️ Error al cancelar notificación: $e');
+          debugPrint('Error al cancelar notificación: $e');
         }
       }
       
-      // Programar nueva notificación si la fecha es futura y NO está completada
+      // Programar nueva notificación si la fecha es futura y no está completada
       int? newNotificationId;
       if (task.isCompleted == 0) {
         final dueDate = DateTime.parse(task.dueDate);
         if (dueDate.isAfter(DateTime.now())) {
           try {
             newNotificationId = await _notificationService.scheduleNotification(
-              title: '⏰ ${task.title}',
+              title: 'Recordatorio: ${task.title}',
               body: task.description,
               scheduledDate: dueDate,
               payload: task.id?.toString(),
             );
           } catch (e) {
-            debugPrint('⚠️ Error al programar notificación: $e');
+            debugPrint('Error al programar notificación: $e');
           }
         }
       }
@@ -162,7 +168,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   /// Elimina una tarea
-  /// FASE 5: Cancela su notificación programada
+  /// Cancela su notificación programada si existe
   Future<void> deleteTask(int taskId) async {
     try {
       final db = DatabaseHelper.instance;
@@ -175,7 +181,7 @@ class TaskProvider with ChangeNotifier {
         try {
           await _notificationService.cancelNotification(task.notificationId!);
         } catch (e) {
-          debugPrint('⚠️ Error al cancelar notificación: $e');
+          debugPrint('Error al cancelar notificación: $e');
         }
       }
       
@@ -191,23 +197,85 @@ class TaskProvider with ChangeNotifier {
   }
 
   /// Cambia el estado de completado de una tarea
+  /// 
+  /// Al completar: Cancela la notificación programada
+  /// Al descompletar: Reprograma la notificación si la fecha es futura
   Future<void> toggleComplete(int taskId) async {
     try {
       final task = _tasks.firstWhere((t) => t.id == taskId);
-      final updatedTask = TaskModel(
-        id: task.id,
-        userId: task.userId,
-        title: task.title,
-        description: task.description,
-        dueDate: task.dueDate,
-        isCompleted: task.isCompleted == 1 ? 0 : 1,
-        completedAt: task.isCompleted == 1 ? null : DateTime.now().toIso8601String(),
-        notificationId: task.notificationId,
-        sourceType: task.sourceType,
-        priority: task.priority,
-      );
+      final db = DatabaseHelper.instance;
       
-      await updateTask(updatedTask);
+      final isGoingToComplete = task.isCompleted == 0;
+      
+      if (isGoingToComplete) {
+        // Completar tarea: cancelar notificación
+        if (task.notificationId != null) {
+          try {
+            await _notificationService.cancelNotification(task.notificationId!);
+          } catch (e) {
+            debugPrint('Error al cancelar notificación: $e');
+          }
+        }
+        
+        final updatedTask = TaskModel(
+          id: task.id,
+          userId: task.userId,
+          title: task.title,
+          description: task.description,
+          dueDate: task.dueDate,
+          isCompleted: 1,
+          completedAt: DateTime.now().toIso8601String(),
+          notificationId: task.notificationId,
+          sourceType: task.sourceType,
+          priority: task.priority,
+        );
+        
+        await db.updateTask(updatedTask);
+        
+        final index = _tasks.indexWhere((t) => t.id == taskId);
+        if (index != -1) {
+          _tasks[index] = updatedTask;
+          notifyListeners();
+        }
+      } else {
+        // Descompletar tarea: reprogramar notificación si la fecha es futura
+        int? newNotificationId;
+        final dueDate = DateTime.parse(task.dueDate);
+        
+        if (dueDate.isAfter(DateTime.now())) {
+          try {
+            newNotificationId = await _notificationService.scheduleNotification(
+              title: 'Recordatorio: ${task.title}',
+              body: task.description,
+              scheduledDate: dueDate,
+              payload: task.id?.toString(),
+            );
+          } catch (e) {
+            debugPrint('Error al reprogramar notificación: $e');
+          }
+        }
+        
+        final updatedTask = TaskModel(
+          id: task.id,
+          userId: task.userId,
+          title: task.title,
+          description: task.description,
+          dueDate: task.dueDate,
+          isCompleted: 0,
+          completedAt: null,
+          notificationId: newNotificationId,
+          sourceType: task.sourceType,
+          priority: task.priority,
+        );
+        
+        await db.updateTask(updatedTask);
+        
+        final index = _tasks.indexWhere((t) => t.id == taskId);
+        if (index != -1) {
+          _tasks[index] = updatedTask;
+          notifyListeners();
+        }
+      }
     } catch (e) {
       debugPrint('Error al cambiar estado de tarea: $e');
       rethrow;

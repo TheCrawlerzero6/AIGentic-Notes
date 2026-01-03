@@ -37,6 +37,9 @@ dependencies:
   # ========== SEGURIDAD ==========
   crypto: ^3.0.3                     # Hash de contraseñas (SHA-256)
 
+  # ========== PERSISTENCIA ==========
+  shared_preferences: ^2.2.2         # Guardar sesión usuario
+
   # ========== UTILIDADES ==========
   intl: ^0.20.2                      # Formateo de fechas (actualizado para flutter_localizations)
 
