@@ -21,7 +21,7 @@ dependencies:
 
   # ========== FIREBASE (IA) ==========
   firebase_core: ^4.3.0              # Core de Firebase (OBLIGATORIO)
-  firebase_ai: ^3.6.1                # SDK de Gemini AI
+  firebase_ai: ^3.6.1                # Firebase AI Logic SDK (Gemini Developer API)
 
   # ========== BASE DE DATOS LOCAL ==========
   sqflite: ^2.3.0                    # SQLite local
@@ -44,10 +44,11 @@ dependencies:
   intl: ^0.20.2                      # Formateo de fechas (actualizado para flutter_localizations)
 
   # ========== INPUTS MULTIMODALES (IA) ==========
-  # speech_to_text: ^6.6.0             # DESACTIVADO: Incompatible con Flutter 3.35+ (usar en Fase 4 con versión actualizada)
   image_picker: ^1.1.2               # Captura/selección de imágenes
   file_picker: ^8.0.0                # Selección de archivos
   excel: ^4.0.3                      # Lectura de archivos Excel
+  flutter_sound: ^9.2.13             # Grabación de audio multiplataforma
+  permission_handler: ^11.0.0        # Permisos de micrófono y almacenamiento
   image: ^4.1.0                      # Compresión de imágenes
 # ========================================
 # DEPENDENCIAS DE DESARROLLO

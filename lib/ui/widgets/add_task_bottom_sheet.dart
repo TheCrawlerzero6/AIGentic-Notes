@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:typed_data';
+import '../../data/services/ai_service.dart';
 import 'time_picker_spinner.dart';
+import 'ai_options_widget.dart';
+import 'audio_recorder_widget.dart';
+import 'file_picker_widget.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   final void Function(String title, String description, DateTime dueDate, int priority) onAdd;
@@ -21,6 +26,8 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
 
   String? _titleError;
   String? _dateError;
+  
+  bool _isProcessingAI = false;
 
   @override
   void dispose() {
@@ -111,6 +118,155 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     return '$hour:$minute $period';
   }
 
+  /// Muestra opciones multimodales de IA
+  void _showAIOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => AIOptionsWidget(
+        onImageSelected: (bytes) => _processWithAI(bytes, ContentType.image),
+        onAudioSelected: _showAudioRecorder,
+        onFileSelected: _showFilePlaceholder,
+      ),
+    );
+  }
+
+  /// Muestra grabador de audio
+  void _showAudioRecorder() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false, // No cerrar accidentalmente durante grabación
+      enableDrag: false,
+      builder: (context) => AudioRecorderWidget(
+        onAudioRecorded: (bytes) => _processWithAI(bytes, ContentType.audio),
+      ),
+    );
+  }
+
+  /// Muestra placeholder de Excel
+  void _showFilePlaceholder() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const FilePickerWidget(),
+    );
+  }
+
+  /// Procesa contenido con IA y autocompleta formulario
+  Future<void> _processWithAI(Uint8List data, ContentType type) async {
+    setState(() => _isProcessingAI = true);
+
+    try {
+      final aiService = AiService();
+      const userId = 1;
+      
+      final tasks = await aiService.processMultimodalContent(
+        data: data,
+        type: type,
+        userId: userId,
+      );
+
+      if (tasks.isEmpty) {
+        if (mounted) {
+          // Cerrar grabador/opciones de IA
+          Navigator.pop(context);
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se encontraron tareas en ${type == ContentType.image ? 'la imagen' : 'el audio'}'),
+            ),
+          );
+        }
+        return;
+      }
+
+      // Autocompletar con primera tarea (MVP: solo 1 tarea)
+      final task = tasks.first;
+      setState(() {
+        _titleCtrl.text = task.title;
+        _descCtrl.text = task.description;
+        
+        // Parsear dueDate string a DateTime
+        final dueDate = DateTime.parse(task.dueDate);
+        _selectedDate = dueDate;
+        _selectedTime = TimeOfDay.fromDateTime(dueDate);
+        
+        _priority = task.priority;
+        
+        // Limpiar errores
+        _titleError = null;
+        _dateError = null;
+      });
+
+      if (mounted) {
+        // Cerrar el bottom sheet del grabador/opciones de IA automáticamente
+        Navigator.pop(context);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✓ Campos completados con IA (${type == ContentType.audio ? 'audio' : 'imagen'})'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error procesando contenido (${type.name}): $e');
+      
+      if (mounted) {
+        // Cerrar grabador/opciones de IA antes de mostrar error
+        Navigator.pop(context);
+        
+        String errorMsg = type == ContentType.audio 
+            ? 'Error procesando audio' 
+            : 'Error procesando imagen';
+        
+        // Mensajes específicos según el tipo de error
+        if (e.toString().contains('no pudo extraer información válida')) {
+          errorMsg = type == ContentType.audio
+              ? 'No se detectó una tarea clara en el audio'
+              : 'La imagen no contiene texto legible o tareas';
+        } else if (e.toString().contains('Configura tu API key')) {
+          errorMsg = 'Configura tu API key de Gemini en Google AI Studio';
+        } else if (e.toString().contains('quota') || e.toString().contains('Límite de API')) {
+          errorMsg = 'Límite de API alcanzado. Intenta más tarde';
+        } else if (e.toString().contains('no pudo procesar')) {
+          errorMsg = type == ContentType.audio
+              ? 'La IA no pudo transcribir el audio. Habla más claro'
+              : 'La IA no pudo leer la imagen. Intenta con otra más clara';
+        } else if (e.toString().contains('no encontraron tareas')) {
+          errorMsg = type == ContentType.audio
+              ? 'No se encontraron tareas en el audio'
+              : 'No se encontraron tareas en la imagen';
+        } else if (e.toString().contains('muy corto')) {
+          errorMsg = 'Audio muy corto. Graba al menos 2 segundos';
+        } else if (e.toString().contains('permiso')) {
+          errorMsg = 'Se requiere permiso de micrófono';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingAI = false);
+      }
+    }
+  }
+
   void _handleAdd() {
     final title = _titleCtrl.text.trim();
     final desc = _descCtrl.text.trim();
@@ -172,9 +328,37 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Crear Nueva Tarea',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Crear Nueva Tarea',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                      ),
+                      // Botón IA mejorado
+                      _isProcessingAI
+                          ? const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : TextButton.icon(
+                              onPressed: _showAIOptions,
+                              icon: const Icon(Icons.auto_awesome, size: 20),
+                              label: const Text('Llenar con IA'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.purple.shade700,
+                                backgroundColor: Colors.purple.shade50,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                    ],
                   ),
                   const SizedBox(height: 14),
 

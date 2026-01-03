@@ -127,7 +127,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  /// Elimina la tarea con confirmación
+  // ignore: use_build_context_synchronously
   Future<void> _deleteTask() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -148,10 +148,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ),
     );
 
-    if (confirm == true) {
+    if (confirm == true && mounted) {
       try {
         await context.read<TaskProvider>().deleteTask(widget.task.id!);
         if (!mounted) return;
+        
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -161,6 +162,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         );
       } catch (e) {
         if (!mounted) return;
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al eliminar: $e')),
         );
@@ -301,7 +303,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 onChanged: _isEditing
                     ? (value) => setState(() => _isCompleted = value)
                     : null,
-                activeColor: const Color(0xFF6750A4),
+                activeTrackColor: const Color(0xFF6750A4),
               ),
 
               const SizedBox(height: 10),

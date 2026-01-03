@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'core/theme/app_theme.dart';
 import 'data/local/database_helper.dart';
 import 'data/services/notification_service.dart';
+import 'data/services/ai_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/task_provider.dart';
 import 'ui/screens/auth/login_screen.dart';
@@ -13,6 +15,22 @@ import 'ui/screens/home/home_screen.dart';
 /// Punto de entrada de la aplicación AIGentic-Notes
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase Core (prerequisito para firebase_ai)
+  try {
+    await Firebase.initializeApp();
+    debugPrint('Firebase Core inicializado');
+  } catch (e) {
+    debugPrint('Error al inicializar Firebase: $e');
+  }
+
+  // Inicializar servicio IA (no bloqueante - se valida conexión)
+  AiService().initialize().then((_) async {
+    final testResult = await AiService().testConnection();
+    debugPrint('AiService test: $testResult');
+  }).catchError((e) {
+    debugPrint('Error al inicializar AiService: $e');
+  });
 
   // Inicializar base de datos SQLite (bloqueante - crítico)
   try {

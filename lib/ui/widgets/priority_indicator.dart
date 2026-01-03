@@ -29,10 +29,10 @@ class PriorityIndicator extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: config.color.withOpacity(0.15),
+        color: config.color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: config.color.withOpacity(0.3),
+          color: config.color.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),

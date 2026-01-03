@@ -131,13 +131,3 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
-
-
-# AI-generated documentation and prompts
-*.copilotmd
-*_COMPLETA.md
-FIREBASE_*.md
-FASE_*.md
-.github/copilot-instructions.md
-.prompts/
-prompts/
