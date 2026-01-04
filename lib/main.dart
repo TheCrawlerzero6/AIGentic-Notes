@@ -16,7 +16,7 @@ import 'ui/screens/home/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar Firebase Core (prerequisito para firebase_ai)
+  // Inicializar Firebase Core como prerequisito para firebase_ai
   try {
     await Firebase.initializeApp();
     debugPrint('Firebase Core inicializado');
@@ -24,15 +24,12 @@ void main() async {
     debugPrint('Error al inicializar Firebase: $e');
   }
 
-  // Inicializar servicio IA (no bloqueante - se valida conexión)
-  AiService().initialize().then((_) async {
-    final testResult = await AiService().testConnection();
-    debugPrint('AiService test: $testResult');
-  }).catchError((e) {
+  // Inicializar servicio de IA sin consumir solicitudes del API
+  AiService().initialize().catchError((e) {
     debugPrint('Error al inicializar AiService: $e');
   });
 
-  // Inicializar base de datos SQLite (bloqueante - crítico)
+  // Inicializar base de datos SQLite de forma bloqueante
   try {
     await DatabaseHelper.instance.database;
     debugPrint('Base de datos inicializada');
@@ -40,7 +37,7 @@ void main() async {
     debugPrint('Error al inicializar base de datos: $e');
   }
 
-  // Inicializar notificaciones (no bloqueante)
+  // Inicializar servicio de notificaciones de forma no bloqueante
   NotificationService().initialize().then((_) async {
     await NotificationService().requestPermissions();
   }).catchError((e) {

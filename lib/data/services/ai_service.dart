@@ -19,6 +19,34 @@ class AiService {
 
   GenerativeModel? _model;
   bool _isInitialized = false;
+  
+  // Contador de solicitudes para debugging
+  int _totalRequests = 0;
+  final List<DateTime> _requestTimestamps = [];
+  
+  /// Obtiene el número total de solicitudes hechas en esta sesión
+  int get totalRequests => _totalRequests;
+  
+  /// Obtiene el número de solicitudes en los últimos 60 segundos
+  int getRequestsInLastMinute() {
+    final now = DateTime.now();
+    final oneMinuteAgo = now.subtract(const Duration(seconds: 60));
+    _requestTimestamps.removeWhere((timestamp) => timestamp.isBefore(oneMinuteAgo));
+    return _requestTimestamps.length;
+  }
+  
+  /// Registra una nueva solicitud al API
+  void _registerRequest() {
+    _totalRequests++;
+    _requestTimestamps.add(DateTime.now());
+    
+    final requestsLastMinute = getRequestsInLastMinute();
+    debugPrint('API Request #$_totalRequests | Últimos 60s: $requestsLastMinute | Límite diario: $_totalRequests/20');
+    
+    if (_totalRequests >= 18) {
+      debugPrint('ADVERTENCIA: Acercándose al límite diario ($_totalRequests/20)');
+    }
+  }
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -27,7 +55,7 @@ class AiService {
       // FirebaseAI.googleAI() lee automáticamente la API key desde google-services.json
       final ai = FirebaseAI.googleAI();
 
-      // Configurar modelo con salida JSON estructurada
+      // Configurar modelo gemini-2.5-flash con límite de 20 solicitudes diarias
       _model = ai.generativeModel(
         model: 'gemini-2.5-flash',
         generationConfig: GenerationConfig(
@@ -67,6 +95,7 @@ class AiService {
 
       _isInitialized = true;
       debugPrint('AiService: Inicializado con gemini-2.5-flash');
+      debugPrint('Límite de API: 20 solicitudes por día');
     } catch (e) {
       debugPrint('AiService: Error inicializando - $e');
       rethrow;
@@ -81,11 +110,23 @@ class AiService {
     if (!_isInitialized) await initialize();
 
     try {
+      _registerRequest(); // Registrar solicitud
+      
       final response = await _model!.generateContent([
         Content.text('Responde SOLO con la palabra "OK" si me entiendes.')
       ]);
 
       final text = response.text ?? 'ERROR: Sin respuesta';
+      
+      // Logging de consumo de tokens
+      if (response.usageMetadata != null) {
+        debugPrint('=== CONSUMO DE TOKENS (testConnection) ===');
+        debugPrint('Tokens de entrada: ${response.usageMetadata!.promptTokenCount}');
+        debugPrint('Tokens de salida: ${response.usageMetadata!.candidatesTokenCount}');
+        debugPrint('Total tokens: ${response.usageMetadata!.totalTokenCount}');
+        debugPrint('==========================================');
+      }
+      
       debugPrint('AiService: Test conexión - $text');
       return text;
     } catch (e) {
@@ -118,6 +159,8 @@ class AiService {
   Future<List<TaskModel>> _processImage(Uint8List imageBytes, int userId) async {
 
     try {
+      _registerRequest(); // Registrar solicitud
+      
       final prompt = FeatureFlags.getImagePrompt();
       final imagePart = InlineDataPart('image/jpeg', imageBytes);
 
@@ -127,6 +170,15 @@ class AiService {
 
       if (response.text == null || response.text!.isEmpty) {
         throw Exception('La IA no pudo procesar la imagen');
+      }
+
+      // Logging de consumo de tokens
+      if (response.usageMetadata != null) {
+        debugPrint('=== CONSUMO DE TOKENS (Imagen) ===');
+        debugPrint('Tokens de entrada: ${response.usageMetadata!.promptTokenCount}');
+        debugPrint('Tokens de salida: ${response.usageMetadata!.candidatesTokenCount}');
+        debugPrint('Total tokens: ${response.usageMetadata!.totalTokenCount}');
+        debugPrint('=====================================');
       }
 
       // LOG: Ver respuesta completa de Gemini
@@ -184,9 +236,6 @@ class AiService {
       return tasks;
     } catch (e) {
       debugPrint('Error procesando imagen: $e');
-      if (e.toString().contains('quota') || e.toString().contains('RESOURCE_EXHAUSTED')) {
-        throw Exception('Configura tu API key en Google AI Studio');
-      }
       rethrow;
     }
   }
@@ -194,6 +243,8 @@ class AiService {
   /// Procesa audio con Gemini (transcribe y extrae tareas)
   Future<List<TaskModel>> _processAudio(Uint8List audioBytes, int userId) async {
     try {
+      _registerRequest(); // Registrar solicitud
+      
       final prompt = FeatureFlags.getAudioPrompt();
       final audioPart = InlineDataPart(FeatureFlags.AUDIO_MIME_TYPE, audioBytes);
 
@@ -203,6 +254,15 @@ class AiService {
 
       if (response.text == null || response.text!.isEmpty) {
         throw Exception('La IA no pudo procesar el audio');
+      }
+
+      // Logging de consumo de tokens
+      if (response.usageMetadata != null) {
+        debugPrint('=== CONSUMO DE TOKENS (Audio) ===');
+        debugPrint('Tokens de entrada: ${response.usageMetadata!.promptTokenCount}');
+        debugPrint('Tokens de salida: ${response.usageMetadata!.candidatesTokenCount}');
+        debugPrint('Total tokens: ${response.usageMetadata!.totalTokenCount}');
+        debugPrint('====================================');
       }
 
       debugPrint('=== RESPUESTA GEMINI AUDIO (RAW) ===');
@@ -256,9 +316,6 @@ class AiService {
       return tasks;
     } catch (e) {
       debugPrint('Error procesando audio: $e');
-      if (e.toString().contains('quota') || e.toString().contains('RESOURCE_EXHAUSTED')) {
-        throw Exception('Límite de API alcanzado. Intenta más tarde');
-      }
       rethrow;
     }
   }
