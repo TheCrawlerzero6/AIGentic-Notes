@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mi_agenda/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'core/theme/app_theme.dart';
 import 'data/local/database_helper.dart';
 import 'data/services/notification_service.dart';
 import 'data/services/ai_service.dart';
@@ -38,17 +38,20 @@ void main() async {
   }
 
   // Inicializar servicio de notificaciones de forma no bloqueante
-  NotificationService().initialize().then((_) async {
-    await NotificationService().requestPermissions();
-  }).catchError((e) {
-    debugPrint('Error al inicializar notificaciones: $e');
-  });
+  NotificationService()
+      .initialize()
+      .then((_) async {
+        await NotificationService().requestPermissions();
+      })
+      .catchError((e) {
+        debugPrint('Error al inicializar notificaciones: $e');
+      });
 
   runApp(const MyApp());
 }
 
 /// Widget raíz de la aplicación
-/// 
+///
 /// Configura:
 /// - Providers para gestión de estado (Auth, Tasks)
 /// - Tema visual centralizado
@@ -69,19 +72,18 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'AIGentic-Notes',
-            theme: AppTheme.lightTheme,
-            
+            theme: CustomAppTheme.lightTheme,
+            darkTheme: CustomAppTheme.darkTheme,
+
+            themeMode: ThemeMode.system,
             // Configuración de localización para DatePicker/TimePicker
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('es', 'ES'),
-              Locale('en', 'US'),
-            ],
-            
+            supportedLocales: const [Locale('es', 'ES'), Locale('en', 'US')],
+
             home: FutureBuilder<bool>(
               future: authProvider.checkSession(),
               builder: (context, snapshot) {
@@ -90,7 +92,7 @@ class MyApp extends StatelessWidget {
                     body: Center(child: CircularProgressIndicator()),
                   );
                 }
-                
+
                 final hasSession = snapshot.data ?? false;
                 return hasSession ? const HomeScreen() : const LoginScreen();
               },
@@ -105,5 +107,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

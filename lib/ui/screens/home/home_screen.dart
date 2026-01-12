@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mi_agenda/ui/widgets/user_app_bar.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/task_provider.dart';
 import '../../../data/models/task_model.dart';
 import '../../widgets/add_task_bottom_sheet.dart';
-import '../../widgets/priority_indicator.dart';
-import '../profile/profile_screen.dart';
 import 'task_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,10 +15,47 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final sampleTask = TaskModel(
+    userId: 1,
+    title: "Investigar mucho",
+    description: "ASndjan jansdjasndjsa",
+    dueDate: "2026-01-15T18:00:00Z",
+    sourceType: "manual",
+    priority: 2,
+  );
+  final List<MenuItem> items = [
+    const MenuItem(
+      labelText: 'Para Hoy',
+      icon: Icons.access_time_filled,
+      progress: 0.7,
+      isTracked: true,
+    ),
+    const MenuItem(
+      labelText: 'Agenda',
+      icon: Icons.calendar_month,
+      progress: 0.4,
+      isTracked: false,
+    ),
+  ];
+
+  final List<MenuItem> userTasks = [
+    const MenuItem(
+      labelText: 'Sprints Trabajo',
+      icon: Icons.list,
+      progress: 0.7,
+      isTracked: true,
+    ),
+    const MenuItem(
+      labelText: 'Tareas Espol',
+      icon: Icons.list,
+      progress: 0.4,
+      isTracked: true,
+    ),
+  ];
   @override
   void initState() {
     super.initState();
-    // Cargar tareas del usuario logueado
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = context.read<AuthProvider>();
       final taskProvider = context.read<TaskProvider>();
@@ -39,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onAdd: (title, description, dueDate, priority) async {
             final authProvider = context.read<AuthProvider>();
             final taskProvider = context.read<TaskProvider>();
-            
+
             if (authProvider.currentUser != null) {
               final newTask = TaskModel(
                 userId: authProvider.currentUser!.id!,
@@ -49,9 +85,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 priority: priority,
                 sourceType: 'manual',
               );
-              
+
               await taskProvider.createTask(newTask);
-              
+
               if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -78,272 +114,131 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add, color: Colors.white),
       ),
 
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-        automaticallyImplyLeading: false, // Quitar botón atrás
-        title: const Text(
-          'Mis Tareas del Día',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          // Botón perfil para cerrar sesión
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, size: 28),
-            tooltip: 'Perfil',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: UserAppBar(context),
 
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
-          children: [
-            const Text(
-              'Próximas Tareas',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
 
-            const SizedBox(height: 16),
-
-            // Lista dinámica con Consumer de TaskProvider
-            Consumer<TaskProvider>(
-              builder: (context, taskProvider, child) {
-                if (taskProvider.isLoading) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-
-                if (taskProvider.tasks.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: Column(
-                      children: [
-                        Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.shade300),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No hay tareas aún',
-                          style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  return ListTile(
+                    title: item.buildTitle(context),
+                    subtitle: item.buildSubtitle(context),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TaskDetailScreen(task: sampleTask),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Presiona + para crear tu primera tarea',
-                          style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   );
-                }
+                },
+              ),
+              Divider(),
+              SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: userTasks.length,
+                  itemBuilder: (context, index) {
+                    final item = userTasks[index];
 
-                return Column(
-                  children: taskProvider.tasks.map((task) {
-                    final dueDate = DateTime.parse(task.dueDate);
-                    final now = DateTime.now();
-                    final difference = dueDate.difference(now);
-                    
-                    String timeLabel;
-                    if (difference.inSeconds < 0) {
-                      final absDiff = difference.abs();
-                      final minutes = (absDiff.inSeconds / 60).ceil();
-                      final hours = (absDiff.inSeconds / 3600).floor();
-                      final days = (absDiff.inSeconds / 86400).floor();
-                      
-                      if (days > 0) {
-                        timeLabel = 'Vencida hace ${days}d';
-                      } else if (hours > 0) {
-                        timeLabel = 'Vencida hace ${hours}h';
-                      } else {
-                        timeLabel = 'Vencida hace ${minutes}m';
-                      }
-                    } else {
-                      final totalSeconds = difference.inSeconds;
-                      final minutes = (totalSeconds / 60).ceil();
-                      final hours = (totalSeconds / 3600).floor();
-                      final days = (totalSeconds / 86400).floor();
-                      
-                      if (minutes < 60) {
-                        timeLabel = 'Vence en ${minutes}m';
-                      } else if (hours < 24) {
-                        final remainingMinutes = ((totalSeconds % 3600) / 60).ceil();
-                        timeLabel = 'Vence en ${hours}h ${remainingMinutes}m';
-                      } else {
-                        final remainingHours = ((totalSeconds % 86400) / 3600).floor();
-                        timeLabel = 'Vence en ${days}d ${remainingHours}h';
-                      }
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Dismissible(
-                        key: Key('task_${task.id}'),
-                        direction: DismissDirection.endToStart,
-                        confirmDismiss: (direction) async {
-                          return await showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Eliminar Tarea'),
-                              content: Text('¿Deseas eliminar "${task.title}"?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, true),
-                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                  child: const Text('Eliminar'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        onDismissed: (direction) {
-                          taskProvider.deleteTask(task.id!);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${task.title} eliminada'),
-                              backgroundColor: Colors.red.shade400,
-                            ),
-                          );
-                        },
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade400,
-                            borderRadius: BorderRadius.circular(16),
+                    return ListTile(
+                      title: item.buildTitle(context),
+                      subtitle: item.buildSubtitle(context),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TaskDetailScreen(task: sampleTask),
                           ),
-                          child: const Icon(Icons.delete, color: Colors.white, size: 32),
-                        ),
-                        child: _TaskItem(
-                          task: task,
-                          title: task.title,
-                          subtitle: task.description,
-                          time: timeLabel,
-                          priority: task.priority,
-                          isCompleted: task.isCompleted == 1,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => TaskDetailScreen(task: task),
-                              ),
-                            );
-                          },
-                          onToggleComplete: () {
-                            taskProvider.toggleComplete(task.id!);
-                          },
-                        ),
-                      ),
+                        );
+                      },
                     );
-                  }).toList(),
-                );
-              },
-            ),
-          ],
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _TaskItem extends StatelessWidget {
-  final TaskModel task;
-  final String title;
-  final String subtitle;
-  final String time;
-  final int priority;
-  final bool isCompleted;
-  final VoidCallback onTap;
-  final VoidCallback onToggleComplete;
+class MenuItem {
+  final String labelText;
+  final IconData icon;
+  final double progress;
+  final bool isTracked;
 
-  const _TaskItem({
-    required this.task,
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    required this.priority,
-    required this.isCompleted,
-    required this.onTap,
-    required this.onToggleComplete,
+  const MenuItem({
+    required this.labelText,
+    required this.icon,
+    required this.progress,
+    required this.isTracked,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isCompleted ? Colors.grey.shade100 : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+  Widget buildTitle(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4), // 👈 padding interno
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.primary.withOpacity(0.2), // 👈 20% opacidad
+            borderRadius: BorderRadius.circular(6), // 👈 bordes redondeados
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
         ),
-        child: Row(
-          children: [
-            // Checkbox para completar
-            Checkbox(
-              value: isCompleted,
-              onChanged: (_) => onToggleComplete(),
-              shape: const CircleBorder(),
-              activeColor: const Color(0xFF6750A4),
-            ),
-            const SizedBox(width: 8),
-            PriorityIndicator(
-              priority: priority,
-              size: 70,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      decoration: isCompleted ? TextDecoration.lineThrough : null,
-                      color: isCompleted ? Colors.grey : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isCompleted ? Colors.grey.shade500 : Colors.black87,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
-                      const SizedBox(width: 6),
-                      Text(time, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                    ],
-                  ),
-                ],
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            labelText,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+        if (isTracked)
+          Row(
+            spacing: 4,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "${(progress * 100).toStringAsFixed(0)}%",
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400),
-          ],
-        ),
-      ),
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  value: progress,
+
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+      ],
     );
+  }
+
+  Widget buildSubtitle(BuildContext context) {
+    return SizedBox(height: 0);
   }
 }
