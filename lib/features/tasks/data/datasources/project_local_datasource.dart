@@ -5,7 +5,7 @@ import '../../../../core/constants.dart';
 
 class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
   ProjectLocalDatasource({required super.db})
-    : super(tableName: Constants.tableTasks);
+    : super(tableName: Constants.tableProjects);
 
   @override
   Future<int> delete(int id) async {
@@ -16,6 +16,7 @@ class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
   @override
   Future<List<ProjectModel>> getAll() async {
     final records = await db.getAllRecords(tableName: tableName);
+    print("ALL RECORDS ARE $records");
     return records.map((map) => ProjectModel.fromMap(map)).toList();
   }
 
@@ -54,5 +55,14 @@ class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
       debugPrint('Error al actualizar usuario: $e');
       rethrow;
     }
+  }
+
+  @override
+  Future<ProjectModel> getDetail(int id) async {
+    final record = await db.getRecord(tableName: tableName, id: id);
+    if (record != null) {
+      return ProjectModel.fromMap(record);
+    }
+    throw Exception("Project not found.");
   }
 }

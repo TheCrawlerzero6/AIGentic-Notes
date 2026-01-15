@@ -77,4 +77,13 @@ class UserLocalDatasource extends BaseLocalDataSource<UserModel> {
       rethrow;
     }
   }
+
+  @override
+  Future<UserModel> getDetail(int id) async {
+    final record = await db.getRecord(tableName: tableName, id: id);
+    if (record != null) {
+      return UserModel.fromMap(record);
+    }
+    throw Exception("User not found exception");
+  }
 }

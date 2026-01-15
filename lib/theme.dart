@@ -27,7 +27,7 @@ class CustomAppTheme {
     scaffoldBackgroundColor: const Color(0xFF0F172A),
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF020617),
+      backgroundColor: Color(0xFF0F172A),
       elevation: 0,
       foregroundColor: Colors.white,
     ),
@@ -39,7 +39,7 @@ class CustomAppTheme {
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF020617),
+      fillColor: const Color.fromARGB(41, 2, 6, 23),
       border: OutlineInputBorder(
         borderRadius: borderRadius,
         borderSide: BorderSide.none,

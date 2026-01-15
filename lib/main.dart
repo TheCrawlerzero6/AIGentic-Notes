@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'features/auth/presentation/bloc/auth_cubit.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/tasks/data/services/ai_service.dart';
 import 'features/tasks/data/services/notification_service.dart';
 

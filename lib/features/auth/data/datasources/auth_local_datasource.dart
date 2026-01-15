@@ -26,7 +26,7 @@ class AuthLocalDatasource {
       }
       final hashedPassword = _hashPassword(password);
 
-      final user = new UserModel(
+      var user = UserModel(
         username: username,
         passwordHash: hashedPassword,
         createdAt: DateTime.now(),
@@ -36,6 +36,9 @@ class AuthLocalDatasource {
         tableName: Constants.tableUsers,
         entity: user.toMap(),
       );
+
+      user.id = createdId;
+      
       await _saveSession(createdId);
 
       return user;

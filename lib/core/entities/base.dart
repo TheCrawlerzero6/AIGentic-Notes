@@ -1,5 +1,5 @@
 abstract class Entity {
-  final int? id;
+  int? id;
   final DateTime createdAt;
   final DateTime updatedAt;
 

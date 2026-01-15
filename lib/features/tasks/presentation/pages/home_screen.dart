@@ -22,22 +22,41 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (modalContext) {
         return AddTaskBottomSheet(
           onAdd: (title, description, dueDate, priority) async {
-            // final authProvider = context.read<AuthProvider>();
-            // final taskProvider = context.read<TaskProvider>();
-
-            // if (authProvider.currentUser != null) {
-            await context.read<HomeCubit>().createDefaultTask();
-            // await taskProvider.createTask(newTask);
-
-            if (mounted) {
-              // Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tarea creada exitosamente'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
-                ),
+            try {
+              await context.read<HomeCubit>().createTask(
+                title,
+                description,
+                dueDate,
+                priority,
               );
+
+              if (mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Tarea creada exitosamente',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.green,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Error creando tarea: ${e.toString()}",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
             }
             // }
           },
@@ -81,26 +100,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Divider(),
                   SizedBox(height: 8),
-                  (state is HomeLoading)
-                      ? Center(child: CircularProgressIndicator())
-                      : (state is HomeSuccess)
-                      ? Expanded(
-                          child: ListView.builder(
-                            itemCount: state.projects.length,
-                            itemBuilder: (context, index) {
-                              final item = state.projects[index];
+                  if (state is HomeLoading)
+                    Center(child: CircularProgressIndicator())
+                  else if (state is HomeSuccess && state.projects.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.projects.length,
+                        itemBuilder: (context, index) {
+                          final item = state.projects[index];
 
-                              return ListTile(
-                                title: Text(item.title),
-                                subtitle: SizedBox(height: 0),
-                                onTap: () {
-                                  debugPrint("OLA MUNDO");
-                                },
-                              );
+                          return ListTile(
+                            title: Text(item.title),
+                            subtitle: SizedBox(height: 0),
+                            onTap: () {
+                              debugPrint("OLA MUNDO");
                             },
-                          ),
-                        )
-                      : Center(child: Text('Error cargando proyectos')),
+                          );
+                        },
+                      ),
+                    )
+                  else if (state is HomeError)
+                    Center(child: Text(state.message))
+                  else
+                    Center(child: Text("No se han creado proyectos aún")),
                 ],
               ),
             ),

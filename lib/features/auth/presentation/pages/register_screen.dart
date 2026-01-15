@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mi_agenda/features/auth/presentation/bloc/auth_state.dart';
+import 'package:mi_agenda/features/auth/presentation/cubit/auth_state.dart';
 import 'package:provider/provider.dart';
 
-import '../bloc/auth_cubit.dart';
+import '../cubit/auth_cubit.dart';
 
 /// Pantalla de registro de nuevos usuarios
 ///

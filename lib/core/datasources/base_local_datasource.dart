@@ -7,6 +7,7 @@ abstract class BaseLocalDataSource<E> {
   BaseLocalDataSource({required this.db, required this.tableName});
 
   Future<List<E>> getAll();
+  Future<E> getDetail(int id);
 
   Future<int> insert(E data);
 

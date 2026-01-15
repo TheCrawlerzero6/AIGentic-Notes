@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
-import '../../features/auth/presentation/bloc/auth_cubit.dart';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/tasks/data/repositories/project_repository.dart';
 
 // import 'ui/screens/home/home_screen.dart';
@@ -58,8 +58,9 @@ final localProviders = [
         ProjectRepository(dataSource: context.read<ProjectLocalDatasource>()),
   ),
   BlocProvider(
-    create: (context) =>
-        HomeCubit(repository: context.read<IProjectRepository>())
-          ..listProjects(),
+    create: (context) => HomeCubit(
+      repository: context.read<IProjectRepository>(),
+      authCubit: context.read<AuthCubit>(),
+    )..listProjects(),
   ),
 ];

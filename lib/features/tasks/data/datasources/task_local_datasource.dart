@@ -98,4 +98,10 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
       rethrow;
     }
   }
+  
+  @override
+  Future<TaskModel> getDetail(int id) {
+    // TODO: implement getDetail
+    throw UnimplementedError();
+  }
 }

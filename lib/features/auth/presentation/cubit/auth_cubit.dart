@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/register_usercase.dart';
 
+import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/restore_session.dart';
 import 'auth_state.dart';
@@ -19,6 +20,13 @@ class AuthCubit extends Cubit<AuthState> {
     required this.logout,
   }) : super(AuthInitial());
 
+  User? get currentUser {
+    if (state is AuthAuthenticated) {
+      return (state as AuthAuthenticated).user;
+    }
+    return null;
+  }
+
   Future<void> checkSession() async {
     emit(AuthLoading());
 
@@ -33,7 +41,6 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signIn(String username, String password) async {
     emit(AuthLoading());
     try {
-      print("LOGGING IN");
       final user = await login(username, password); // login del datasource
       if (user != null) {
         emit(AuthAuthenticated(user));

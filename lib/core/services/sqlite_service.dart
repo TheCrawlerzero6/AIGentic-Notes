@@ -23,7 +23,7 @@ class SqliteService {
   Future<Database> _initDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, Constants.dbName);
- 
+    //deleteDatabase();
     return await openDatabase(
       path,
       version: Constants.dbVersion,
@@ -37,7 +37,7 @@ class SqliteService {
     // Tabla users
     await db.execute('''
       CREATE TABLE IF NOT EXISTS ${Constants.tableUsers} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         username TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
         createdAt TEXT NOT NULL,
@@ -46,7 +46,7 @@ class SqliteService {
     ''');
     await db.execute('''
       CREATE TABLE IF NOT EXISTS ${Constants.tableProjects} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         title TEXT NOT NULL,
         description TEXT,
         icon TEXT,
