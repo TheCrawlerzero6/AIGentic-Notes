@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../pages/wip_screen.dart';
 
@@ -18,10 +19,7 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.account_circle_outlined, size: 28),
             tooltip: 'Perfil',
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              // );
+              context.push("/profile");
             },
           ),
           Expanded(

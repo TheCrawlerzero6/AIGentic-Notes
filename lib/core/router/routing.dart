@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
+import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/tasks/presentation/pages/home_screen.dart';
 
@@ -38,7 +39,7 @@ class AppRouter {
         GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
         GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
         GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
-      
+        GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
       ],
     );
   }
