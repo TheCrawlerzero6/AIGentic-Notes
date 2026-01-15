@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
@@ -113,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             title: Text(item.title),
                             subtitle: SizedBox(height: 0),
                             onTap: () {
-                              debugPrint("OLA MUNDO");
+                              context.push("/projects/${item.id}");
                             },
                           );
                         },

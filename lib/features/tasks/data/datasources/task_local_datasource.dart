@@ -98,10 +98,13 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
       rethrow;
     }
   }
-  
+
   @override
-  Future<TaskModel> getDetail(int id) {
-    // TODO: implement getDetail
-    throw UnimplementedError();
+  Future<TaskModel> getDetail(int id) async {
+    final record = await db.getRecord(tableName: tableName, id: id);
+    if (record != null) {
+      return TaskModel.fromMap(record);
+    }
+    throw Exception("Task not found.");
   }
 }

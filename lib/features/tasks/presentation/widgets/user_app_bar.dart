@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../pages/wip_screen.dart';
-
 class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
   const UserAppBar(BuildContext context, {super.key});
   @override
@@ -51,10 +49,7 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             tooltip: 'Búsqueda',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const WIPScreen()),
-              );
+              context.push("/search");
             },
           ),
         ],

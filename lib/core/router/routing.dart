@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mi_agenda/features/tasks/presentation/pages/task_detail_screen.dart';
+import 'package:mi_agenda/features/tasks/presentation/pages/wip_screen.dart';
 
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
@@ -9,6 +11,7 @@ import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/tasks/presentation/pages/home_screen.dart';
+import '../../features/tasks/presentation/pages/tasks_screen.dart';
 
 class AppRouter {
   static GoRouter router(AuthCubit authCubit) {
@@ -38,8 +41,25 @@ class AppRouter {
       routes: [
         GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
         GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
+        GoRoute(
+          path: '/projects/:projectId',
+          builder: (context, state) {
+            final projectId = int.parse(state.pathParameters['projectId']!);
+
+            return TasksScreen(projectId: projectId);
+          },
+        ),
+        GoRoute(
+          path: '/tasks/:taskId',
+          builder: (context, state) {
+            final taskId = int.parse(state.pathParameters['taskId']!);
+
+            return TaskDetailScreen(taskId: taskId);
+          },
+        ),
         GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
         GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+        GoRoute(path: '/search', builder: (_, __) => const WIPScreen()),
       ],
     );
   }
