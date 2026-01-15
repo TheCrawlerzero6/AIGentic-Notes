@@ -9,7 +9,7 @@ Genera el código completo para `lib/data/local/database_helper.dart` y los mode
 
 Requisitos Estrictos:
 1. Schema: Implementa `onCreate` creando las tablas:
-   - `users`: id, username, password_hash, created_at.
+   - `users`: id, username, password_hash, createdAt.
    - `tasks`: id, user_id, title, description, due_date, is_completed, completed_at, notification_id, source_type, priority.
 2. Modelos: Genera `TaskModel` y `UserModel` con métodos `toMap()` y `fromMap()`.
 3. Dashboard Query (Vital): El método `getDashboardTasks()` debe filtrar:

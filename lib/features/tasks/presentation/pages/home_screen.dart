@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
+import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
+
+import '../cubit/home_cubit.dart';
+import '../widgets/add_task_bottom_sheet.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  void _openAddBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return AddTaskBottomSheet(
+          onAdd: (title, description, dueDate, priority) async {
+            // final authProvider = context.read<AuthProvider>();
+            // final taskProvider = context.read<TaskProvider>();
+
+            // if (authProvider.currentUser != null) {
+            await context.read<HomeCubit>().createDefaultTask();
+            // await taskProvider.createTask(newTask);
+
+            if (mounted) {
+              // Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Tarea creada exitosamente'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+            // }
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF6750A4),
+        onPressed: _openAddBottomSheet,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+
+      appBar: UserAppBar(context),
+
+      body: BlocBuilder<HomeCubit, HomeState>(
+        builder: (context, state) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: state.menuItems.length,
+                    itemBuilder: (context, index) {
+                      final item = state.menuItems[index];
+
+                      return ListTile(
+                        title: Text(item.labelText),
+                        subtitle: SizedBox(height: 0),
+                        onTap: () {
+                          debugPrint("TAPPED");
+                        },
+                      );
+                    },
+                  ),
+                  Divider(),
+                  SizedBox(height: 8),
+                  (state is HomeLoading)
+                      ? Center(child: CircularProgressIndicator())
+                      : (state is HomeSuccess)
+                      ? Expanded(
+                          child: ListView.builder(
+                            itemCount: state.projects.length,
+                            itemBuilder: (context, index) {
+                              final item = state.projects[index];
+
+                              return ListTile(
+                                title: Text(item.title),
+                                subtitle: SizedBox(height: 0),
+                                onTap: () {
+                                  debugPrint("OLA MUNDO");
+                                },
+                              );
+                            },
+                          ),
+                        )
+                      : Center(child: Text('Error cargando proyectos')),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

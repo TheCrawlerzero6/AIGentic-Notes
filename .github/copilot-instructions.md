@@ -16,7 +16,7 @@ Fuente única de verdad. Crear estas 2 tablas obligatoriamente.
 - id (INTEGER PK AUTOINCREMENT)
 - username (TEXT)
 - password_hash (TEXT)
-- created_at (TEXT)
+- createdAt (TEXT)
 
 ### Tabla tasks
 - id (INTEGER PK AUTOINCREMENT)

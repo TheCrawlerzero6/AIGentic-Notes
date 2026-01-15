@@ -12,47 +12,37 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:  # Para DatePicker/TimePicker en español
+  flutter_localizations:  
     sdk: flutter
 
-  # ========== CORE UI ==========
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.2.3
 
-  # ========== FIREBASE (IA) ==========
   firebase_core: ^4.3.0              # Core de Firebase (OBLIGATORIO)
   firebase_ai: ^3.6.1                # Firebase AI Logic SDK (Gemini Developer API)
 
-  # ========== BASE DE DATOS LOCAL ==========
   sqflite: ^2.3.0                    # SQLite local
   path_provider: ^2.1.0              # Rutas del dispositivo
-
-  # ========== GESTIÓN DE ESTADO ==========
   provider: ^6.1.0                   # State management
 
-  # ========== NOTIFICACIONES LOCALES ==========
   flutter_local_notifications: ^18.0.0  # Notificaciones programadas
   timezone: ^0.9.0                   # Para programar notificaciones con zona horaria
 
-  # ========== SEGURIDAD ==========
   crypto: ^3.0.3                     # Hash de contraseñas (SHA-256)
 
-  # ========== PERSISTENCIA ==========
   shared_preferences: ^2.2.2         # Guardar sesión usuario
 
-  # ========== UTILIDADES ==========
   intl: ^0.20.2                      # Formateo de fechas (actualizado para flutter_localizations)
 
-  # ========== INPUTS MULTIMODALES (IA) ==========
   image_picker: ^1.1.2               # Captura/selección de imágenes
   file_picker: ^8.0.0                # Selección de archivos
   excel: ^4.0.3                      # Lectura de archivos Excel
   flutter_sound: ^9.2.13             # Grabación de audio multiplataforma
   permission_handler: ^11.0.0        # Permisos de micrófono y almacenamiento
   image: ^4.1.0                      # Compresión de imágenes
-# ========================================
-# DEPENDENCIAS DE DESARROLLO
-# ========================================
+  flutter_bloc: ^9.1.1
+  go_router: ^17.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

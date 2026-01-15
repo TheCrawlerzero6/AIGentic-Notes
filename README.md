@@ -1,3 +1,6 @@
+### Arquitectura Clean w/ Bloc + Cubit
+ https://dev.to/alaminkarno/building-a-scalable-folder-structure-in-flutter-using-clean-architecture-bloccubit-530c
+
 # AIGentic-Notes
 
 **Agenda Inteligente Local-First con Procesamiento de IA en la Nube**
@@ -258,7 +261,7 @@ La aplicación usa SQLite local con dos tablas principales:
 | id             | INTEGER | PRIMARY KEY AUTOINCREMENT      | Identificador único del usuario      |
 | username       | TEXT    | NOT NULL UNIQUE                | Nombre de usuario (único)            |
 | password_hash  | TEXT    | NOT NULL                       | Hash SHA-256 de la contraseña        |
-| created_at     | TEXT    | NOT NULL                       | Timestamp ISO8601 de creación        |
+| createdAt     | TEXT    | NOT NULL                       | Timestamp ISO8601 de creación        |
 
 #### Tabla `tasks`
 
