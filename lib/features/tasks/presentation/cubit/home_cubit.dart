@@ -49,13 +49,10 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> listProjects() async {
     emit(HomeLoading());
     try {
-      print("CARGANDO PROYECTOS");
       final projects = await repository.listProjects();
 
-      print("PROYECTOS SON $projects");
       emit(HomeSuccess(projects: projects));
     } catch (e) {
-      print("ERROR OBENIDO ${e.toString()}");
       emit(HomeError(message: e.toString()));
     }
   }

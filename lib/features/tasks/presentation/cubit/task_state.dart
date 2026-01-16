@@ -1,3 +1,5 @@
+import 'package:mi_agenda/features/tasks/domain/entities/project.dart';
+
 import '../../domain/entities/task.dart';
 
 abstract class TaskState {
@@ -14,7 +16,8 @@ class TaskLoading extends TaskState {
 
 class TaskSuccess extends TaskState {
   final List<Task> tasks;
-  TaskSuccess({required this.tasks});
+  final Project selectedProject;
+  TaskSuccess({required this.tasks, required this.selectedProject});
 }
 
 class TaskError extends TaskState {

@@ -16,7 +16,6 @@ class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
   @override
   Future<List<ProjectModel>> getAll() async {
     final records = await db.getAllRecords(tableName: tableName);
-    print("ALL RECORDS ARE $records");
     return records.map((map) => ProjectModel.fromMap(map)).toList();
   }
 

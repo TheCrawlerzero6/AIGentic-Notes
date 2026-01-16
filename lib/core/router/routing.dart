@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mi_agenda/features/tasks/domain/repositories/project_repository.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/task_detail_screen.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/wip_screen.dart';
 
@@ -51,12 +52,12 @@ class AppRouter {
             return BlocProvider(
               create: (context) => TaskCubit(
                 repository: context.read<ITaskRepository>(),
+                projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
                 projectId: projectId,
               ),
               child: TasksScreen(projectId: projectId),
             );
-          
           },
         ),
         GoRoute(

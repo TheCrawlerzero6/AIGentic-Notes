@@ -394,8 +394,9 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                       ),
                     ),
                     onChanged: (_) {
-                      if (_titleError != null)
+                      if (_titleError != null) {
                         setState(() => _titleError = null);
+                      }
                     },
                   ),
 
