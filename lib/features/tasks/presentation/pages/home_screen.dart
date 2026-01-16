@@ -89,18 +89,76 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: state.menuItems.length,
                     itemBuilder: (context, index) {
                       final item = state.menuItems[index];
-
-                      return ListTile(
-                        title: Text(item.labelText),
-                        subtitle: SizedBox(height: 0),
-                        onTap: () {
-                          debugPrint("TAPPED");
-                        },
-                      );
+                      if (index == 0) {
+                        return ListTile(
+                          minTileHeight: 56,
+                          leading: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(64, 98, 85, 245),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Icon(
+                              Icons.timer,
+                              size: 20,
+                              color: Color.fromARGB(255, 98, 85, 245),
+                            ),
+                          ),
+                          title: Text(item.labelText),
+                          subtitle: null,
+                          onTap: () {
+                            debugPrint("TAPPED");
+                          },
+                        );
+                      } else if (index == 1) {
+                        return ListTile(
+                          minTileHeight: 56,
+                          leading: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(71, 171, 120, 218),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Icon(
+                              Icons.calendar_month,
+                              size: 20,
+                              color: Color.fromARGB(255, 171, 120, 218),
+                            ),
+                          ),
+                          title: Text(item.labelText),
+                          subtitle: null,
+                          onTap: () {
+                            debugPrint("TAPPED");
+                          },
+                        );
+                      } else {
+                        return ListTile(
+                          minTileHeight: 56,
+                          leading: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(64, 98, 85, 245),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Icon(
+                              Icons.timer,
+                              size: 20,
+                              color: Color.fromARGB(255, 98, 85, 245),
+                            ),
+                          ),
+                          title: Text(item.labelText),
+                          subtitle: null,
+                          onTap: () {
+                            debugPrint("TAPPED");
+                          },
+                        );
+                      }
                     },
                   ),
                   Divider(),
-                  SizedBox(height: 8),
                   if (state is HomeLoading)
                     Center(child: CircularProgressIndicator())
                   else if (state is HomeSuccess && state.projects.isNotEmpty)
@@ -111,8 +169,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           final item = state.projects[index];
 
                           return ListTile(
+                            minTileHeight: 56,
+                            leading: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(64, 98, 85, 245),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.list,
+                                size: 20,
+                                color: Color.fromARGB(255, 98, 85, 245),
+                              ),
+                            ),
                             title: Text(item.title),
-                            subtitle: SizedBox(height: 0),
+                            subtitle: null,
                             onTap: () {
                               context.push("/projects/${item.id}");
                             },
