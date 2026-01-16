@@ -2,11 +2,11 @@ import '../../domain/entities/task.dart';
 
 class TaskModel extends Task {
   TaskModel({
-    required super.id,
+    super.id,
 
     required super.title,
     required super.description,
-    required super.dueDate,
+    super.dueDate,
     required super.isCompleted,
     super.completedAt,
     super.notificationId,
@@ -22,9 +22,9 @@ class TaskModel extends Task {
     return TaskModel(
       id: map['id'] as int,
       title: map['title'] as String,
-      description: map['description'] as String,
-      dueDate: DateTime.parse(map['dueDate']),
-      isCompleted: map['isCompleted'] as bool,
+      description: map['description'] as String?,
+      dueDate: map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
+      isCompleted: (map['isCompleted'] == 1),
       completedAt: map['completedAt'] != null
           ? DateTime.parse(map['completedAt'])
           : null,
@@ -43,7 +43,7 @@ class TaskModel extends Task {
       'id': id,
       'title': title,
       'description': description,
-      'dueDate': dueDate,
+      'dueDate': dueDate?.toIso8601String(),
       'isCompleted': isCompleted,
       'completedAt': completedAt,
       'notificationId': notificationId,
@@ -61,7 +61,7 @@ class TaskModel extends Task {
       isCompleted: json['isCompleted'] as bool,
       title: json['title'] as String,
       description: json['description'] as String? ?? '',
-      dueDate: DateTime.parse(json['dueDate']),
+      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
       priority: json['priority'] as int? ?? 2,
       sourceType: json['sourceType'] as String? ?? 'manual',
 
@@ -76,7 +76,7 @@ class TaskModel extends Task {
     return {
       'title': title,
       'description': description,
-      'dueDate': dueDate,
+      'dueDate': dueDate?.toIso8601String(),
       'priority': priority,
       'sourceType': sourceType,
       'createdAt': createdAt.toIso8601String(),
@@ -116,25 +116,6 @@ class TaskModel extends Task {
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
-  }
-
-
-  bool get isOverdue {
-    if (isCompleted) return false;
-    final dueDateTime = dueDate;
-    return dueDateTime.isBefore(DateTime.now());
-  }
-
-  int get priorityColor {
-    switch (priority) {
-      case 3:
-        return 0xFFF44336; // Rojo (alta)
-      case 2:
-        return 0xFFFF9800; // Naranja (media)
-      case 1:
-      default:
-        return 0xFF4CAF50; // Verde (baja)
-    }
   }
 
   @override

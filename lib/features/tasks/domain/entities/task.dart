@@ -3,7 +3,7 @@ import '../../../../core/entities/base.dart';
 abstract class Task extends Entity {
   final String title;
   final String? description;
-  final DateTime dueDate; // ISO8601
+  final DateTime? dueDate; // ISO8601
   final bool isCompleted; // 0 = pendiente, 1 = completada
   final DateTime? completedAt; // ISO8601, null si no está completada
   final int? notificationId; // ID para gestionar notificaciones
@@ -16,7 +16,7 @@ abstract class Task extends Entity {
     super.id,
     required this.title,
     this.description,
-    required this.dueDate,
+    this.dueDate,
     required this.isCompleted,
     this.completedAt,
     this.notificationId,

@@ -81,7 +81,7 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
       debugPrint('Usuario creado con ID: $id');
       return id;
     } catch (e) {
-      debugPrint('Error al insertar usuario: $e');
+      debugPrint('Error al insertar tarea: $e');
       rethrow;
     }
   }

@@ -29,7 +29,7 @@ class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
       debugPrint('Usuario creado con ID: $id');
       return id;
     } catch (e) {
-      debugPrint('Error al insertar usuario: $e');
+      debugPrint('Error al insertar proyecto: $e');
       rethrow;
     }
   }

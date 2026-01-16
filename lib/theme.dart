@@ -50,11 +50,11 @@ class CustomAppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-
+    
     colorScheme: const ColorScheme.light(
       primary: primary,
       secondary: secondary,
-      surface: surface,
+      surface: Color.fromARGB(255, 186, 190, 168),
       error: error,
     ),
 

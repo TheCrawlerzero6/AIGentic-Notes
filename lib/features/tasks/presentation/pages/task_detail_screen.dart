@@ -8,6 +8,11 @@ class TaskDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Task $taskId")),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+
       body: Placeholder(),
     );
   }

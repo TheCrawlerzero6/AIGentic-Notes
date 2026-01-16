@@ -14,7 +14,6 @@ class TaskRepository extends ITaskRepository {
   Future<int> createTask(CreateTaskDto data) async {
     return await dataSource.insert(
       TaskModel(
-        id: 0,
         title: data.title,
         description: data.description,
         dueDate: data.dueDate,

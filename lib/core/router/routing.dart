@@ -55,7 +55,7 @@ class AppRouter {
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
                 projectId: projectId,
-              ),
+              )..listTasks(),
               child: TasksScreen(projectId: projectId),
             );
           },

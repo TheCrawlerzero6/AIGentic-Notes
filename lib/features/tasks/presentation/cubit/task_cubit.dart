@@ -19,20 +19,14 @@ class TaskCubit extends Cubit<TaskState> {
     required this.projectId,
   }) : super(TaskInitial());
 
-  Project? get currentUser {
+  Project? get selectedProject {
     if (state is TaskSuccess) {
       return (state as TaskSuccess).selectedProject;
     }
     return null;
   }
 
-  Future<void> createTask(
-    String title,
-    String description,
-    DateTime dueDate,
-    int priority,
-    int projectId,
-  ) async {
+  Future<void> createTask(String title, DateTime dueDate) async {
     emit(TaskLoading());
 
     try {
@@ -45,7 +39,7 @@ class TaskCubit extends Cubit<TaskState> {
 
       final task = CreateTaskDto(
         title: title,
-        description: description,
+        description: null,
         dueDate: dueDate,
         isCompleted: false,
         sourceType: 'manual',

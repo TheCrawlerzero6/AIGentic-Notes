@@ -23,7 +23,7 @@ class SqliteService {
   Future<Database> _initDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, Constants.dbName);
-    //deleteDatabase();
+    // deleteDatabase();
     return await openDatabase(
       path,
       version: Constants.dbVersion,
@@ -64,7 +64,7 @@ class SqliteService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         description TEXT,
-        dueDate TEXT NOT NULL,
+        dueDate TEXT,
         isCompleted INTEGER NOT NULL DEFAULT 0,
         completedAt TEXT,
         notificationId INTEGER,

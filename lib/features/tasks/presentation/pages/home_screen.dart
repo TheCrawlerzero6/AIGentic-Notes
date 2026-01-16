@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
+import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
 import '../cubit/home_cubit.dart';
-import '../widgets/add_task_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
-        return AddTaskBottomSheet(
+        return AddProjectBottomSheet(
           onAdd: (title, description, dueDate, priority) async {
             try {
               await context.read<HomeCubit>().createTask(
