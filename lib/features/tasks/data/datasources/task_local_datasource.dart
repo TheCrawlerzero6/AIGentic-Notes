@@ -62,6 +62,15 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
     return records.map((map) => TaskModel.fromMap(map)).toList();
   }
 
+  Future<List<TaskModel>> getAllByProjectId(int projectId) async {
+    final records = await db.getAllRecords(
+      tableName: tableName,
+      whereClause: "projectId = ?",
+      whereArgs: [projectId],
+    );
+    return records.map((map) => TaskModel.fromMap(map)).toList();
+  }
+
   @override
   Future<int> insert(TaskModel data) async {
     try {

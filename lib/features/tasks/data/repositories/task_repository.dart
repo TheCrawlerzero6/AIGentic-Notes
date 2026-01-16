@@ -1,3 +1,5 @@
+import 'package:mi_agenda/features/tasks/data/models/task_model.dart';
+import 'package:mi_agenda/features/tasks/domain/dtos/task_dtos.dart';
 import 'package:mi_agenda/features/tasks/domain/entities/task.dart';
 
 import '../../domain/repositories/task_repository.dart';
@@ -9,9 +11,21 @@ class TaskRepository extends ITaskRepository {
   TaskRepository({required this.dataSource});
 
   @override
-  Future<int> createTask(Task data) {
-    // TODO: implement createTask
-    throw UnimplementedError();
+  Future<int> createTask(CreateTaskDto data) async {
+    return await dataSource.insert(
+      TaskModel(
+        id: 0,
+        title: data.title,
+        description: data.description,
+        dueDate: data.dueDate,
+        isCompleted: data.isCompleted,
+        sourceType: data.sourceType,
+        priority: data.priority,
+        projectId: data.projectId,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      ),
+    );
   }
 
   @override
@@ -21,32 +35,58 @@ class TaskRepository extends ITaskRepository {
   }
 
   @override
-  Future<int> deleteTask(int id) {
-    // TODO: implement deleteTask
-    throw UnimplementedError();
+  Future<int> deleteTask(int id) async {
+    return await dataSource.delete(id);
   }
 
   @override
-  Future<Task?> getTaskDetail(int id) {
-    // TODO: implement getTaskDetail
-    throw UnimplementedError();
+  Future<Task?> getTaskDetail(int id) async {
+    return await dataSource.getDetail(id);
   }
 
   @override
-  Future<List<Task>> listTasks() {
-    // TODO: implement listTasks
-    throw UnimplementedError();
+  Future<List<Task>> listTasks(int projectId) async {
+    return await dataSource.getAllByProjectId(projectId);
   }
 
   @override
-  Future<int> toggleTaskComplete(int id) {
-    // TODO: implement toggleTaskComplete
-    throw UnimplementedError();
+  Future<int> toggleTaskComplete(int id) async {
+    final currentTask = await dataSource.getDetail(id);
+
+    return await dataSource.update(
+      TaskModel(
+        id: id,
+        title: currentTask.title,
+        description: currentTask.description,
+        dueDate: currentTask.dueDate,
+        isCompleted: !currentTask.isCompleted,
+        completedAt: !currentTask.isCompleted ? DateTime.now() : null,
+        sourceType: currentTask.sourceType,
+        priority: currentTask.priority,
+        projectId: currentTask.projectId,
+        createdAt: currentTask.createdAt,
+        updatedAt: currentTask.updatedAt,
+      ),
+    );
   }
 
   @override
-  Future<int> updateTask(int id, Task data) {
-    // TODO: implement updateTask
-    throw UnimplementedError();
+  Future<int> updateTask(int id, UpdateTaskDto data) async {
+    final currentTask = await dataSource.getDetail(id);
+
+    return await dataSource.update(
+      TaskModel(
+        id: id,
+        title: data.title ?? currentTask.title,
+        description: data.description ?? currentTask.description,
+        dueDate: data.dueDate ?? currentTask.dueDate,
+        isCompleted: data.isCompleted ?? currentTask.isCompleted,
+        sourceType: data.sourceType ?? currentTask.sourceType,
+        priority: data.priority ?? currentTask.priority,
+        projectId: data.projectId ?? currentTask.projectId,
+        createdAt: data.createdAt ?? currentTask.createdAt,
+        updatedAt: data.updatedAt,
+      ),
+    );
   }
 }

@@ -6,7 +6,10 @@ import 'package:mi_agenda/features/auth/domain/usecases/register_usercase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/restore_session.dart';
 import 'package:mi_agenda/features/tasks/data/datasources/project_local_datasource.dart';
 import 'package:mi_agenda/core/services/sqlite_service.dart';
+import 'package:mi_agenda/features/tasks/data/datasources/task_local_datasource.dart';
+import 'package:mi_agenda/features/tasks/data/repositories/task_repository.dart';
 import 'package:mi_agenda/features/tasks/domain/repositories/project_repository.dart';
+import 'package:mi_agenda/features/tasks/domain/repositories/task_repository.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/home_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,5 +65,12 @@ final localProviders = [
       repository: context.read<IProjectRepository>(),
       authCubit: context.read<AuthCubit>(),
     )..listProjects(),
+  ),
+  Provider<TaskLocalDatasource>(
+    create: (context) => TaskLocalDatasource(db: context.read<SqliteService>()),
+  ),
+  Provider<ITaskRepository>(
+    create: (context) =>
+        TaskRepository(dataSource: context.read<TaskLocalDatasource>()),
   ),
 ];

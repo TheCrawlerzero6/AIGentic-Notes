@@ -1,11 +1,13 @@
+import '../../domain/dtos/task_dtos.dart';
+
 import '../entities/task.dart';
 
 abstract class ITaskRepository {
-  Future<List<Task>> listTasks();
+  Future<List<Task>> listTasks(int projectId);
   Future<Task?> getTaskDetail(int id);
-  
-  Future<int> createTask(Task data);
-  Future<int> updateTask(int id, Task data);
+
+  Future<int> createTask(CreateTaskDto data);
+  Future<int> updateTask(int id, UpdateTaskDto data);
   Future<int> deleteTask(int id);
 
   Future<int> toggleTaskComplete(int id);
