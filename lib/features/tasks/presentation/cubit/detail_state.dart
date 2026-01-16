@@ -1,0 +1,30 @@
+import 'package:mi_agenda/features/tasks/domain/entities/project.dart';
+
+import '../../domain/entities/task.dart';
+
+abstract class DetailState {
+  DetailState();
+}
+
+class DetailInitial extends DetailState {
+  DetailInitial();
+}
+
+class DetailLoading extends DetailState {
+  DetailLoading();
+}
+
+class DetailSuccess extends DetailState {
+  final Task selectedTask;
+  final Project selectedProject;
+  DetailSuccess({required this.selectedTask, required this.selectedProject});
+}
+
+class DetailEdit extends DetailSuccess {
+  DetailEdit({required super.selectedTask, required super.selectedProject});
+}
+
+class DetailError extends DetailState {
+  final String message;
+  DetailError({required this.message});
+}
