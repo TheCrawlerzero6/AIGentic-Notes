@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../presentation/cubit/task_cubit.dart';
 import '../../presentation/cubit/task_state.dart';
 import '../widgets/add_task_bottom_sheet.dart';
@@ -78,7 +79,7 @@ class _TasksScreenState extends State<TasksScreen> {
 
           body: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
+              horizontal: 12.0,
               vertical: 4.0,
             ),
             child: _buildBody(state),
@@ -92,21 +93,54 @@ class _TasksScreenState extends State<TasksScreen> {
     if (state is TaskLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (state is TaskSuccess && state.tasks.isNotEmpty) {
-      return ListView.separated(
-        separatorBuilder: (BuildContext context, int index) {
-          return Divider(height: 1, thickness: 0.8);
-        },
+      return ListView.builder(
         itemCount: state.tasks.length < 10 ? 10 : 2,
 
         itemBuilder: (context, index) {
           if (index < state.tasks.length) {
             final item = state.tasks[index];
-            return ListTile(
-              title: Text(item.title),
-              subtitle: SizedBox(height: 0),
-              onTap: () {
-                context.push("/tasks/${item.id}");
-              },
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: Material(
+                color: Colors.grey.withAlpha(100),
+                borderRadius: BorderRadius.circular(2),
+                child: ListTile(
+                  leading: Radio<bool>(
+                    value: item.isCompleted,
+                    toggleable: true,
+                  ),
+                  minTileHeight: 64,
+                  title: Text(item.title),
+                  subtitle: item.dueDate != null
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.calendar_month_rounded, size: 12),
+                            Text(
+                              DateFormat(
+                                "EEE, d 'de' MMM",
+                                'es',
+                              ).format(item.dueDate!),
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        )
+                      : null,
+                  trailing: IconButton(
+                    onPressed: () => {},
+                    icon: Icon(Icons.favorite_outline),
+                  ),
+                  onTap: () {
+                    context.push("/tasks/${item.id}");
+                  },
+                ),
+              ),
             );
           } else {
             return const TaskPlaceholderLine();
@@ -134,10 +168,13 @@ class TaskPlaceholderLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 64,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: BoxBorder.fromLTRB(
-            bottom: BorderSide(color: Colors.grey.withAlpha(100)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: BoxBorder.fromLTRB(
+              bottom: BorderSide(color: Colors.grey.withAlpha(20), width: 1.5),
+            ),
           ),
         ),
       ),

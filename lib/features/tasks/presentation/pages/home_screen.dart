@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mi_agenda/features/tasks/domain/entities/system_project.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
+import '../../domain/entities/project.dart';
 import '../cubit/home_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -90,71 +92,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final item = state.menuItems[index];
                       if (index == 0) {
-                        return ListTile(
-                          minTileHeight: 56,
-                          leading: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(64, 98, 85, 245),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Icon(
-                              Icons.timer,
-                              size: 20,
-                              color: Color.fromARGB(255, 98, 85, 245),
-                            ),
-                          ),
-                          title: Text(item.labelText),
-                          subtitle: null,
-                          onTap: () {
-                            debugPrint("TAPPED");
-                          },
+                        return getSystemTile(
+                          context: context,
+                          listItem: item,
+                          icon: Icons.timer,
+                          color: Color.fromARGB(255, 98, 85, 245),
                         );
                       } else if (index == 1) {
-                        return ListTile(
-                          minTileHeight: 56,
-                          leading: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(71, 171, 120, 218),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Icon(
-                              Icons.calendar_month,
-                              size: 20,
-                              color: Color.fromARGB(255, 171, 120, 218),
-                            ),
-                          ),
-                          title: Text(item.labelText),
-                          subtitle: null,
-                          onTap: () {
-                            debugPrint("TAPPED");
-                          },
+                        return getSystemTile(
+                          context: context,
+                          listItem: item,
+                          icon: Icons.calendar_month,
+                          color: Color.fromARGB(255, 171, 120, 218),
                         );
                       } else {
-                        return ListTile(
-                          minTileHeight: 56,
-                          leading: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(64, 98, 85, 245),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Icon(
-                              Icons.timer,
-                              size: 20,
-                              color: Color.fromARGB(255, 98, 85, 245),
-                            ),
-                          ),
-                          title: Text(item.labelText),
-                          subtitle: null,
-                          onTap: () {
-                            debugPrint("TAPPED");
-                          },
-                        );
+                        return getSystemTile(context: context, listItem: item);
                       }
                     },
                   ),
@@ -168,27 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) {
                           final item = state.projects[index];
 
-                          return ListTile(
-                            minTileHeight: 56,
-                            leading: Container(
-                              width: 26,
-                              height: 26,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(64, 98, 85, 245),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(
-                                Icons.list,
-                                size: 20,
-                                color: Color.fromARGB(255, 98, 85, 245),
-                              ),
-                            ),
-                            title: Text(item.title),
-                            subtitle: null,
-                            onTap: () {
-                              context.push("/projects/${item.id}");
-                            },
-                          );
+                          return getMenuTile(context: context, listItem: item);
                         },
                       ),
                     )
@@ -204,4 +136,70 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+Widget getSystemTile({
+  required BuildContext context,
+  required SystemProject listItem,
+  IconData icon = Icons.list,
+  Color color = const Color(0xFF6255F5),
+}) {
+  return ListTile(
+    minTileHeight: 56,
+    leading: Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        color: color.withAlpha(60),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Icon(icon, size: 20, color: color),
+    ),
+    title: Text(listItem.labelText),
+    subtitle: null,
+    onTap: () {
+      debugPrint("tapped system project");
+      // context.push("/projects/${listItem.labelText}");
+    },
+  );
+}
+
+Widget getMenuTile({
+  required BuildContext context,
+  required Project listItem,
+  IconData icon = Icons.list,
+  Color color = const Color(0xFF6255F5),
+}) {
+  final progress = 0.5;
+  return ListTile(
+    minTileHeight: 56,
+    leading: Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        color: color.withAlpha(60),
+        borderRadius: BorderRadius.circular(4),
+      ),
+
+      child: Icon(icon, size: 20, color: color),
+    ),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "${(progress * 100).toStringAsFixed(0)}%",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(value: progress, color: color)),
+      ],
+    ),
+    title: Text(listItem.title),
+    subtitle: null,
+    onTap: () {
+      context.push("/projects/${listItem.id}");
+    },
+  );
 }

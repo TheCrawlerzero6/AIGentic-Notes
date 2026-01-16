@@ -47,10 +47,10 @@ class CustomAppTheme {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
       headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-      bodyLarge: TextStyle(fontSize: 16,  fontWeight: FontWeight.w600),
-      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      bodySmall: TextStyle(fontSize: 12),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      bodyLarge: TextStyle(fontSize: 16),
+      bodyMedium: TextStyle(fontSize: 14),
+      bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
