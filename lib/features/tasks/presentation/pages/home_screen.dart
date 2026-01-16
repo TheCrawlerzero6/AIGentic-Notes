@@ -193,7 +193,8 @@ Widget getMenuTile({
         SizedBox(
           width: 20,
           height: 20,
-          child: CircularProgressIndicator(value: progress, color: color)),
+          child: CircularProgressIndicator(value: progress, color: color),
+        ),
       ],
     ),
     title: Text(listItem.title),

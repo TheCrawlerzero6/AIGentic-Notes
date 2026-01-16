@@ -129,6 +129,16 @@ class _TasksScreenState extends State<TasksScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                             ),
+                            SizedBox(width: 2,),
+                            Icon(Icons.access_time_filled, size: 12),
+                            Text(
+                              DateFormat('HH:mm').format(item.dueDate!),
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
                           ],
                         )
                       : null,
