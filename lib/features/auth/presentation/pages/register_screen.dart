@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mi_agenda/features/auth/presentation/cubit/auth_state.dart';
 
 import '../cubit/auth_cubit.dart';
@@ -83,12 +84,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).textTheme.bodyLarge!.color,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -110,13 +112,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 34,
-                  vertical: 20,
+                  vertical: 8,
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      SizedBox(
+                        width: 120,
+                        height: 120,
+                        child: Image.asset('assets/images/logo.png'),
+                      ),
                       const Text(
                         'Crear Cuenta',
                         textAlign: TextAlign.center,
@@ -126,31 +133,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 12),
-
-                      const Text(
-                        'Regístrate para empezar a organizar tus tareas',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 0,
+                        children: [
+                          Text(
+                            '¿Ya estás registrado?',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              context.push("/login");
+                            },
+                            child: Text(
+                              'Ingresa',
+                              style: Theme.of(context).textTheme.bodyMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    decorationColor: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
+                                    decorationThickness: 2,
+                                    decoration: TextDecoration.underline,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
+                                  ),
+                            ),
+                          ),
+                        ],
                       ),
 
-                      const SizedBox(height: 30),
-
-                      Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF3B0A1E),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.event_note,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 24),
 
                       _label('Usuario'),
                       const SizedBox(height: 8),
@@ -162,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : null,
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       _label('Correo'),
                       const SizedBox(height: 8),
@@ -173,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: _validateEmail,
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       _label('Contraseña'),
                       const SizedBox(height: 8),
@@ -184,7 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: _validatePassword,
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       _label('Confirmar Contraseña'),
                       const SizedBox(height: 8),
@@ -200,12 +214,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6750A4),
-                            foregroundColor: Colors.white,
-                            shape: const StadiumBorder(),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
                           onPressed: isLoading ? null : _handleRegister,
                           child: isLoading
                               ? const SizedBox(
@@ -226,26 +234,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
 
                       const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '¿Ya tienes cuenta? ',
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Inicia Sesión',
-                              style: TextStyle(
-                                color: Color(0xFF6750A4),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),

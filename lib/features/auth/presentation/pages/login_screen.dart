@@ -39,12 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            //gorouter
-          }
+          if (state is AuthAuthenticated) {}
           if (state is AuthError) {
             ScaffoldMessenger.of(
               context,
@@ -58,37 +55,53 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 34,
-                  vertical: 40,
+                  vertical: 72,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      'AIGentic-Notes',
+                    SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: Image.asset('assets/images/logo.png'),
+                    ),
+                    Text(
+                      'Inicio de Sesión',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
                     ),
 
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 0,
+                      children: [
+                        Text(
+                          '¿No tienes cuenta?',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context.push("/register");
+                          },
+                          child: Text(
+                            'Regístrate',
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  decorationColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                  decorationThickness: 2,
+                                  decoration: TextDecoration.underline,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 20),
-
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF3B0A1E),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.event_note,
-                        color: Colors.white,
-                        size: 48,
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
 
                     // Error message
                     _label('Usuario'),
@@ -113,12 +126,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6750A4),
-                          foregroundColor: Colors.white,
-                          shape: const StadiumBorder(),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
                         onPressed: isLoading ? null : _handleLogin,
                         child: isLoading
                             ? const SizedBox(
@@ -132,35 +139,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               )
                             : const Text(
-                                'Iniciar Sesión',
+                                'Acceder',
                                 style: TextStyle(fontSize: 16),
                               ),
                       ),
                     ),
 
                     const SizedBox(height: 20),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '¿No tienes cuenta? ',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.push("/register");
-                          },
-                          child: const Text(
-                            'Regístrate',
-                            style: TextStyle(
-                              color: Color(0xFF6750A4),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

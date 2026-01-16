@@ -10,47 +10,109 @@ class CustomAppTheme {
   static const Color surface = Color.fromARGB(255, 180, 192, 132);
   static const Color error = Color(0xFFDC2626);
 
-  static const BorderRadius borderRadius = BorderRadius.all(
-    Radius.circular(12),
-  );
+  static const Color primaryDark = Color.fromARGB(255, 98, 71, 122);
+  static const Color secondaryDark = Color.fromARGB(255, 171, 120, 218);
+  static const Color backgroundDark = Color(0xFF0F172A);
+  static const Color primaryTextDark = Color(0xFFF3F3F3);
+  static const Color surfaceDark = Color(0xFF020617);
+  static const Color errorDark = Color(0xFFDC2626);
+
+  static const BorderRadius borderRadius = BorderRadius.all(Radius.circular(8));
+
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
 
     colorScheme: const ColorScheme.dark(
-      primary: primary,
-      secondary: secondary,
-      surface: Color(0xFF020617),
-      error: error,
+      primary: primaryDark,
+      secondary: secondaryDark,
+      surface: surfaceDark,
+      error: errorDark,
     ),
 
-    scaffoldBackgroundColor: const Color(0xFF0F172A),
+    scaffoldBackgroundColor: backgroundDark,
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF0F172A),
+      backgroundColor: backgroundDark,
       elevation: 0,
-      foregroundColor: Colors.white,
+      centerTitle: false,
+      foregroundColor: primaryTextDark,
+      titleTextStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: primaryTextDark,
+      ),
     ),
 
-    cardTheme: CardThemeData(
-      color: const Color(0xFF020617),
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+      headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+      bodyLarge: TextStyle(fontSize: 16),
+      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      bodySmall: TextStyle(fontSize: 12),
+      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryDark,
+        foregroundColor: primaryTextDark,
+        side: BorderSide(color: secondaryDark.withAlpha(60), width: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: primaryTextDark,
+        ),
+      ),
+    ),
+
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primary,
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        side: const BorderSide(color: primary),
+      ),
     ),
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color.fromARGB(41, 2, 6, 23),
+      fillColor: surfaceDark,
       border: OutlineInputBorder(
         borderRadius: borderRadius,
         borderSide: BorderSide.none,
       ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: BorderSide(color: primaryTextDark.withAlpha(120)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: const BorderSide(color: primaryDark, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: const BorderSide(color: errorDark),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+
+    cardTheme: CardThemeData(
+      color: surface,
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+    ),
+
+    dividerTheme: const DividerThemeData(
+      color: Color(0xFFE5E7EB),
+      thickness: 1,
     ),
   );
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    
+
     colorScheme: const ColorScheme.light(
       primary: primary,
       secondary: secondary,
