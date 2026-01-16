@@ -1,4 +1,3 @@
-import 'package:mi_agenda/features/tasks/domain/dtos/task_dtos.dart';
 import 'package:mi_agenda/features/tasks/domain/entities/project.dart';
 
 import '../../domain/entities/task.dart';
