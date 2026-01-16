@@ -96,18 +96,21 @@ class _TasksScreenState extends State<TasksScreen> {
         separatorBuilder: (BuildContext context, int index) {
           return Divider(height: 1, thickness: 0.8);
         },
-        itemCount: state.tasks.length,
+        itemCount: state.tasks.length < 10 ? 10 : 2,
 
         itemBuilder: (context, index) {
-          final item = state.tasks[index];
-
-          return ListTile(
-            title: Text(item.title),
-            subtitle: SizedBox(height: 0),
-            onTap: () {
-              context.push("/tasks/${item.id}");
-            },
-          );
+          if (index < state.tasks.length) {
+            final item = state.tasks[index];
+            return ListTile(
+              title: Text(item.title),
+              subtitle: SizedBox(height: 0),
+              onTap: () {
+                context.push("/tasks/${item.id}");
+              },
+            );
+          } else {
+            return const TaskPlaceholderLine();
+          }
         },
       );
     } else if (state is TaskError) {

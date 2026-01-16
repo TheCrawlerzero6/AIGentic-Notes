@@ -37,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
     );
 
     if (confirm == true && context.mounted) {
-      await context.read<AuthCubit>().logout();
+      await context.read<AuthCubit>().signOut();
       if (context.mounted) {
         context.go("/login");
       }
