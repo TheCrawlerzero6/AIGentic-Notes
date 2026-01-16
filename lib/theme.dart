@@ -12,7 +12,7 @@ class CustomAppTheme {
 
   static const Color primaryDark = Color.fromARGB(255, 98, 71, 122);
   static const Color secondaryDark = Color.fromARGB(255, 171, 120, 218);
-  static const Color backgroundDark = Color(0xFF0F172A);
+  static const Color backgroundDark = Color.fromARGB(255, 3, 4, 7);
   static const Color primaryTextDark = Color(0xFFF3F3F3);
   static const Color surfaceDark = Color(0xFF020617);
   static const Color errorDark = Color(0xFFDC2626);
@@ -47,7 +47,7 @@ class CustomAppTheme {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
       headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-      bodyLarge: TextStyle(fontSize: 16),
+      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       bodyMedium: TextStyle(fontSize: 14),
       bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
       labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
