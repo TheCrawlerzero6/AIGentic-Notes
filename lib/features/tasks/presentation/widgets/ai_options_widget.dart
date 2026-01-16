@@ -7,7 +7,7 @@ class AIOptionsWidget extends StatelessWidget {
   final void Function(Uint8List imageBytes) onImageSelected;
   final VoidCallback onAudioSelected;
   final VoidCallback onFileSelected;
-  
+
   const AIOptionsWidget({
     super.key,
     required this.onImageSelected,
@@ -17,7 +17,7 @@ class AIOptionsWidget extends StatelessWidget {
 
   Future<void> _captureFromCamera(BuildContext context) async {
     final picker = ImagePicker();
-    
+
     try {
       final XFile? photo = await picker.pickImage(
         source: ImageSource.camera,
@@ -36,16 +36,16 @@ class AIOptionsWidget extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al capturar foto: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al capturar foto: $e')));
       }
     }
   }
 
   Future<void> _pickFromGallery(BuildContext context) async {
     final picker = ImagePicker();
-    
+
     try {
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
@@ -81,7 +81,9 @@ class AIOptionsWidget extends StatelessWidget {
 
       // Validar tamaño mínimo para evitar "Invalid size"
       if (image.width < 10 || image.height < 10) {
-        debugPrint('⚠️ Imagen muy pequeña (${image.width}x${image.height}), usando original');
+        debugPrint(
+          '⚠️ Imagen muy pequeña (${image.width}x${image.height}), usando original',
+        );
         return bytes;
       }
 
@@ -111,11 +113,10 @@ class AIOptionsWidget extends StatelessWidget {
   void _showImageOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).cardTheme.color,
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -144,7 +145,10 @@ class AIOptionsWidget extends StatelessWidget {
                 ),
                 child: Icon(Icons.camera_alt, color: Colors.purple.shade700),
               ),
-              title: const Text('Tomar Foto', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'Tomar Foto',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               subtitle: const Text('Usa la cámara'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _captureFromCamera(context),
@@ -159,7 +163,10 @@ class AIOptionsWidget extends StatelessWidget {
                 ),
                 child: Icon(Icons.photo_library, color: Colors.blue.shade700),
               ),
-              title: const Text('Galería', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'Galería',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               subtitle: const Text('Selecciona imagen'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _pickFromGallery(context),
@@ -179,8 +186,8 @@ class AIOptionsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -199,19 +206,13 @@ class AIOptionsWidget extends StatelessWidget {
 
           const Text(
             'Crear con IA',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           const Text(
             'Elige cómo quieres crear la tarea',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
 
           const SizedBox(height: 24),
@@ -235,7 +236,10 @@ class AIOptionsWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -277,7 +281,10 @@ class AIOptionsWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -311,7 +318,11 @@ class AIOptionsWidget extends StatelessWidget {
                 color: Colors.teal.shade50,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.table_chart, color: Colors.teal.shade700, size: 24),
+              child: Icon(
+                Icons.table_chart,
+                color: Colors.teal.shade700,
+                size: 24,
+              ),
             ),
             title: const Text(
               'Importar Excel',
@@ -322,7 +333,10 @@ class AIOptionsWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
@@ -337,7 +351,11 @@ class AIOptionsWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
               ],
             ),
             onTap: () {

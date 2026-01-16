@@ -11,10 +11,7 @@ import 'dart:io';
 class AudioRecorderWidget extends StatefulWidget {
   final void Function(Uint8List audioBytes) onAudioRecorded;
 
-  const AudioRecorderWidget({
-    super.key,
-    required this.onAudioRecorded,
-  });
+  const AudioRecorderWidget({super.key, required this.onAudioRecorded});
 
   @override
   State<AudioRecorderWidget> createState() => _AudioRecorderWidgetState();
@@ -22,7 +19,7 @@ class AudioRecorderWidget extends StatefulWidget {
 
 class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   final _audioRecorder = FlutterSoundRecorder();
-  
+
   bool _isRecording = false;
   bool _isProcessing = false;
   bool _isRecorderInitialized = false;
@@ -90,7 +87,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
       // Configurar path temporal
       final tempDir = await getTemporaryDirectory();
-      _recordedFilePath = '${tempDir.path}/temp_audio_${DateTime.now().millisecondsSinceEpoch}.aac';
+      _recordedFilePath =
+          '${tempDir.path}/temp_audio_${DateTime.now().millisecondsSinceEpoch}.aac';
 
       // Iniciar grabación en formato AAC
       await _audioRecorder.startRecorder(
@@ -119,9 +117,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     } catch (e) {
       debugPrint('Error iniciando grabación: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al grabar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al grabar: $e')));
       }
     }
   }
@@ -132,9 +130,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
     try {
       _timer?.cancel();
-      
+
       await _audioRecorder.stopRecorder();
-      
+
       setState(() {
         _isRecording = false;
         _isProcessing = true;
@@ -144,7 +142,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
         throw Exception('No se generó archivo de audio');
       }
 
-      debugPrint('🎤 Grabación detenida: $_recordedFilePath (${_secondsElapsed}s)');
+      debugPrint(
+        '🎤 Grabación detenida: $_recordedFilePath (${_secondsElapsed}s)',
+      );
 
       // Validar duración mínima (2 segundos)
       if (_secondsElapsed < 2) {
@@ -167,7 +167,6 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
       if (mounted) {
         widget.onAudioRecorded(audioBytes);
       }
-
     } catch (e) {
       debugPrint('Error deteniendo grabación: $e');
       if (mounted) {
@@ -188,7 +187,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     if (_isRecording && _isRecorderInitialized) {
       await _audioRecorder.stopRecorder();
     }
-    
+
     // Eliminar archivo si existe
     if (_recordedFilePath != null) {
       final file = File(_recordedFilePath!);
@@ -212,8 +211,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -261,21 +260,14 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
             color: Colors.blue.shade50,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            Icons.mic,
-            size: 40,
-            color: Colors.blue.shade400,
-          ),
+          child: Icon(Icons.mic, size: 40, color: Colors.blue.shade400),
         ),
 
         const SizedBox(height: 24),
 
         const Text(
           'Dictar tarea con voz',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
 
         const SizedBox(height: 12),
@@ -294,10 +286,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
         Text(
           'Máximo: ${Constants.MAX_AUDIO_DURATION_SECONDS} segundos',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade500,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
         ),
 
         const SizedBox(height: 32),
@@ -336,7 +325,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
   Widget _buildRecordingUI() {
     final progress = _secondsElapsed / Constants.MAX_AUDIO_DURATION_SECONDS;
-    
+
     return Column(
       children: [
         // Indicador visual pulsante
@@ -361,11 +350,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.mic,
-                  size: 50,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.mic, size: 50, color: Colors.white),
               ),
             );
           },
@@ -380,10 +365,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
         const Text(
           'Grabando...',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
 
         const SizedBox(height: 16),

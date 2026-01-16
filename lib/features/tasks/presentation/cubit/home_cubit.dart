@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../data/services/ai_service.dart';
 import '../../domain/dtos/project_dtos.dart';
 import '../../domain/repositories/project_repository.dart';
 import 'home_state.dart';
@@ -11,12 +13,7 @@ class HomeCubit extends Cubit<HomeState> {
 
   HomeCubit({required this.repository, required this.authCubit})
     : super(HomeInitial());
-  Future<void> createTask(
-    String title,
-    String description,
-    DateTime dueDate,
-    int priority,
-  ) async {
+  Future<void> createProject(String title) async {
     emit(HomeLoading());
 
     try {
@@ -29,7 +26,7 @@ class HomeCubit extends Cubit<HomeState> {
 
       final project = CreateProjectDto(
         title: title,
-        description: description,
+        description: "",
         icon: 'add',
         themeColor: '0xFAFAFA',
         userId: user.id!,
@@ -55,5 +52,9 @@ class HomeCubit extends Cubit<HomeState> {
     } catch (e) {
       emit(HomeError(message: e.toString()));
     }
+  }
+
+  void processWithAI(Uint8List bytes, ContentType contentType) {
+    throw UnimplementedError();
   }
 }

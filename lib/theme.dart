@@ -49,7 +49,7 @@ class CustomAppTheme {
 
     textTheme: const TextTheme(
       headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
-      headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+      headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
       bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       bodyMedium: TextStyle(fontSize: 14),
       bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
@@ -101,7 +101,7 @@ class CustomAppTheme {
     ),
 
     cardTheme: CardThemeData(
-      color: surface,
+      color: surfaceDark,
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
     ),

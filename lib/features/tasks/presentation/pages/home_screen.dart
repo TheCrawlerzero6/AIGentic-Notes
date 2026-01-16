@@ -6,8 +6,12 @@ import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
+import '../../data/services/ai_service.dart';
 import '../../domain/entities/project.dart';
 import '../cubit/home_cubit.dart';
+import '../widgets/ai_options_widget.dart';
+import '../widgets/audio_recorder_widget.dart';
+import '../widgets/file_picker_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +21,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  void _showAudioRecorder() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false, // No cerrar accidentalmente durante grabación
+      enableDrag: false,
+      builder: (context) => AudioRecorderWidget(
+        onAudioRecorded: (bytes) =>
+            context.read<HomeCubit>().processWithAI(bytes, ContentType.audio),
+      ),
+    );
+  }
+
   void _openAddBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -24,14 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
         return AddProjectBottomSheet(
-          onAdd: (title, description, dueDate, priority) async {
+          onAdd: (title) async {
             try {
-              await context.read<HomeCubit>().createTask(
-                title,
-                description,
-                dueDate,
-                priority,
-              );
+              await context.read<HomeCubit>().createProject(title);
 
               if (mounted) {
                 Navigator.of(context).pop();
@@ -68,15 +81,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showFilePlaceholder() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const FilePickerWidget(),
+    );
+  }
+
+  void _showAIOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => AIOptionsWidget(
+        onImageSelected: (bytes) =>
+            context.read<HomeCubit>().processWithAI(bytes, ContentType.image),
+        onAudioSelected: _showAudioRecorder,
+        onFileSelected: _showFilePlaceholder,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF6750A4),
-        onPressed: _openAddBottomSheet,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-
       appBar: UserAppBar(context),
 
       body: BlocBuilder<HomeCubit, HomeState>(
@@ -128,6 +157,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     Center(child: Text(state.message))
                   else
                     Center(child: Text("No se han creado proyectos aún")),
+                  Spacer(),
+                  ListTile(
+                    minTileHeight: 56,
+                    leading: SizedBox(
+                      width: 26,
+                      height: 26,
+                      child: Icon(
+                        Icons.add,
+                        size: 26,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    title: Text(
+                      "Nuevo Proyecto",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    subtitle: null,
+                    trailing: IconButton(
+                      onPressed: _showAIOptions,
+
+                      icon: Icon(
+                        Icons.cloud_download_outlined,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    onTap: _openAddBottomSheet,
+                  ),
                 ],
               ),
             ),
