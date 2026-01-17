@@ -145,15 +145,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             elevation: 0,
             title: Text(
               isEditing ? 'Editar Tarea' : 'Detalle de Tarea',
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             actions: [
               if (!isEditing)
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.black),
+                  icon: const Icon(Icons.edit),
                   onPressed: () => context.read<DetailCubit>().startEdit(),
                 ),
               if (isEditing)
@@ -337,11 +334,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Widget _sectionLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
     );
   }
 

@@ -94,15 +94,14 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Mi Perfil',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -133,7 +132,6 @@ class ProfileScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -239,7 +237,7 @@ class ProfileScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade50,
+                    backgroundColor: Colors.red.shade500.withAlpha(60),
                     foregroundColor: Colors.red.shade700,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -310,10 +308,7 @@ class _StatCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
+                Text(title),
                 const SizedBox(height: 4),
                 Text(
                   value,
