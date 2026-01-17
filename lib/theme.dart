@@ -7,7 +7,7 @@ class CustomAppTheme {
   static const Color secondary = Color.fromARGB(255, 98, 71, 122);
   static const Color background = Color.fromARGB(255, 247, 243, 243);
   static const Color primaryText = Color.fromARGB(255, 48, 45, 51);
-  static const Color surface = Color.fromARGB(255, 180, 192, 132);
+  static const Color surface = Color.fromARGB(255, 245, 245, 245);
   static const Color error = Color(0xFFDC2626);
 
   static const Color primaryDark = Color.fromARGB(255, 98, 71, 122);
@@ -119,15 +119,18 @@ class CustomAppTheme {
     colorScheme: const ColorScheme.light(
       primary: primary,
       secondary: secondary,
-      surface: Color.fromARGB(255, 186, 190, 168),
+      surface: surface,
       error: error,
     ),
-
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      shape: const CircleBorder(),
+    ),
     scaffoldBackgroundColor: background,
 
     appBarTheme: const AppBarTheme(
       backgroundColor: background,
       elevation: 0,
+
       centerTitle: false,
       foregroundColor: primaryText,
       titleTextStyle: TextStyle(
@@ -138,26 +141,51 @@ class CustomAppTheme {
     ),
 
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      headlineMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-      bodyLarge: TextStyle(fontSize: 12),
-      bodyMedium: TextStyle(fontSize: 10),
-      labelLarge: TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.w700,
+        color: primaryText,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: primaryText,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: primaryText,
+      ),
+      bodyMedium: TextStyle(fontSize: 14, color: primaryText),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: primaryText,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: primaryText,
+      ),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
-        foregroundColor: Colors.white,
+        foregroundColor: primaryText,
+        side: BorderSide(color: secondary.withAlpha(60), width: 2),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: primaryText,
+        ),
       ),
     ),
 
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primary,
+        foregroundColor: secondary,
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
         side: const BorderSide(color: primary),
       ),
@@ -172,7 +200,7 @@ class CustomAppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        borderSide: BorderSide(color: primaryText.withAlpha(120)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: borderRadius,
@@ -191,8 +219,8 @@ class CustomAppTheme {
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
     ),
 
-    dividerTheme: const DividerThemeData(
-      color: Color(0xFFE5E7EB),
+    dividerTheme: DividerThemeData(
+      color: primaryText.withAlpha(60),
       thickness: 1,
     ),
   );

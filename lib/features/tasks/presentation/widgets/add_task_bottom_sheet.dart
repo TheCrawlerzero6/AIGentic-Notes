@@ -144,8 +144,9 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
-            decoration: const BoxDecoration(
-              //color: Theme.of(context).,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(28),
                 topRight: Radius.circular(28),

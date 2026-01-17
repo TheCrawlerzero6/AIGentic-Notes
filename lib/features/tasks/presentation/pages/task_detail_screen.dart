@@ -122,6 +122,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           backgroundColor: Colors.green,
         ),
       );
+      context.go("/projects/${task.projectId}");
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -132,7 +133,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DetailCubit, DetailState>(
+    return BlocConsumer<DetailCubit, DetailState>(
+      listener: (context, state) {},
       builder: (context, state) {
         final isEditing = state is DetailEdit;
         if (state is DetailSuccess || state is DetailEdit) {

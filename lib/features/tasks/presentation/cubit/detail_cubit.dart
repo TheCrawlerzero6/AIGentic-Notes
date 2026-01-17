@@ -27,10 +27,7 @@ class DetailCubit extends Cubit<DetailState> {
     emit(DetailLoading());
 
     try {
-      if (selectedTask == null) {
-        emit(DetailError(message: 'Task con id $taskId no encontrado'));
-        return;
-      }
+    
 
       final task = data;
 

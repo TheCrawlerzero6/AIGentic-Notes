@@ -14,12 +14,22 @@ class TasksScreen extends StatefulWidget {
   State<TasksScreen> createState() => _TasksScreenState();
 }
 
-class _TasksScreenState extends State<TasksScreen> {
+class _TasksScreenState extends State<TasksScreen> with RouteAware {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TaskCubit>().listTasks();
+  }
+
+  @override
+  void didPopNext() {
+    context.read<TaskCubit>().listTasks();
+  }
+
   void _openAddBottomSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (modalContext) {
         return AddTaskBottomSheet(
           onAdd: (title, dueDate) async {
@@ -129,7 +139,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                             ),
-                            SizedBox(width: 2,),
+                            SizedBox(width: 2),
                             Icon(Icons.access_time_filled, size: 12),
                             Text(
                               DateFormat('HH:mm').format(item.dueDate!),
