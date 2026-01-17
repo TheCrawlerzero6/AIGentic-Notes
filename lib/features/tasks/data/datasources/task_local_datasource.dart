@@ -11,19 +11,20 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
   /// - Muestra TODAS las pendientes (is_completed = 0)
   /// - Muestra completadas (is_completed = 1) SOLO si completed_at > hace 2 días
   /// Marca una tarea como completada o pendiente (toggle)
-  Future<void> toggleTaskComplete(int taskId, bool completed) async {
+  Future<int> toggleTaskComplete(int taskId, bool completed) async {
     try {
       await db.updateRegistry(
         tableName: tableName,
         id: taskId,
         entity: {
-          'is_completed': completed,
+          'isCompleted': completed,
           'completedAt': completed ? DateTime.now().toIso8601String() : null,
         },
       );
       debugPrint(
         'Tarea $taskId marcada como ${completed ? "completada" : "pendiente"}',
       );
+      return taskId;
     } catch (e) {
       debugPrint('Error al toggle tarea: $e');
       rethrow;

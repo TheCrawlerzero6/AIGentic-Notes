@@ -52,21 +52,7 @@ class TaskRepository extends ITaskRepository {
   Future<int> toggleTaskComplete(int id) async {
     final currentTask = await dataSource.getDetail(id);
 
-    return await dataSource.update(
-      TaskModel(
-        id: id,
-        title: currentTask.title,
-        description: currentTask.description,
-        dueDate: currentTask.dueDate,
-        isCompleted: !currentTask.isCompleted,
-        completedAt: !currentTask.isCompleted ? DateTime.now() : null,
-        sourceType: currentTask.sourceType,
-        priority: currentTask.priority,
-        projectId: currentTask.projectId,
-        createdAt: currentTask.createdAt,
-        updatedAt: currentTask.updatedAt,
-      ),
-    );
+    return await dataSource.toggleTaskComplete(id, !currentTask.isCompleted);
   }
 
   @override

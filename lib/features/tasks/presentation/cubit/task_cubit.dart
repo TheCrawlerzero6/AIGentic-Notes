@@ -71,4 +71,19 @@ class TaskCubit extends Cubit<TaskState> {
       emit(TaskError(message: e.toString()));
     }
   }
+
+  Future<void> toggleTask(int id) async {
+    emit(TaskLoading());
+    try {
+      await repository.toggleTaskComplete(id);
+      final tasks = await repository.listTasks(projectId);
+      final project = await projectRepository.getProjectDetail(projectId);
+      if (project == null) {
+        throw Exception("Project not found");
+      }
+      emit(TaskSuccess(tasks: tasks, selectedProject: project));
+    } catch (e) {
+      emit(TaskError(message: e.toString()));
+    }
+  }
 }
