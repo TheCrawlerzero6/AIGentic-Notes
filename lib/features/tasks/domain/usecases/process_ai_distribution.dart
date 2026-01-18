@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import '../dtos/distribution_execution_result.dart';
 import '../dtos/project_dtos.dart';
 import '../dtos/task_dtos.dart';
-import '../entities/project.dart';
 import '../helpers/task_datetime_calculator.dart';
 import '../repositories/i_ai_service.dart';
 import '../repositories/project_repository.dart';
@@ -25,7 +24,7 @@ class ProcessAiDistributionUseCase {
     required Uint8List bytes,
     required ContentType contentType,
     required int userId,
-    required List<Project> existingProjects,
+    required List<DetailedProjectDto> existingProjects,
   }) async {
     if (bytes.isEmpty) {
       throw ArgumentError('Los bytes no pueden estar vacíos');
@@ -35,15 +34,18 @@ class ProcessAiDistributionUseCase {
       throw UnimplementedError('Distribución para archivos no implementada');
     }
 
-    final distribution = await aiService.processMultimodalContentWithDistribution(
-      data: bytes,
-      type: contentType,
-      existingProjects: existingProjects,
-      userId: userId,
-    );
+    final distribution = await aiService
+        .processMultimodalContentWithDistribution(
+          data: bytes,
+          type: contentType,
+          existingProjects: existingProjects,
+          userId: userId,
+        );
 
     final now = DateTime.now();
-    final projectMap = {for (final project in existingProjects) project.id: project};
+    final projectMap = {
+      for (final project in existingProjects) project.id: project,
+    };
 
     var tasksCreated = 0;
     var projectsCreated = 0;

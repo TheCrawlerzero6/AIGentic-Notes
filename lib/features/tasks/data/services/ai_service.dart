@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:mi_agenda/core/constants.dart';
 
+import '../../domain/dtos/project_dtos.dart';
 import '../models/task_model.dart';
 import '../../domain/repositories/i_ai_service.dart';
 import '../../domain/entities/task.dart';
-import '../../domain/entities/project.dart';
 import '../../domain/entities/distribution_result.dart';
 import '../../domain/dtos/distribution_dtos.dart';
 
@@ -134,7 +134,9 @@ class AiService implements IAiService {
                     'tasks': Schema.array(
                       items: Schema.object(
                         properties: {
-                          'title': Schema.string(description: 'Título de la tarea'),
+                          'title': Schema.string(
+                            description: 'Título de la tarea',
+                          ),
                           'description': Schema.string(
                             description: 'Descripción detallada',
                             nullable: true,
@@ -159,13 +161,17 @@ class AiService implements IAiService {
               'new_projects': Schema.array(
                 items: Schema.object(
                   properties: {
-                    'title': Schema.string(description: 'Título del proyecto nuevo'),
+                    'title': Schema.string(
+                      description: 'Título del proyecto nuevo',
+                    ),
                     'suggested_description': Schema.string(nullable: true),
                     'suggested_icon': Schema.string(nullable: true),
                     'tasks': Schema.array(
                       items: Schema.object(
                         properties: {
-                          'title': Schema.string(description: 'Título de la tarea'),
+                          'title': Schema.string(
+                            description: 'Título de la tarea',
+                          ),
                           'description': Schema.string(
                             description: 'Descripción detallada',
                             nullable: true,
@@ -254,7 +260,7 @@ class AiService implements IAiService {
   Future<DistributionResult> processMultimodalContentWithDistribution({
     required Uint8List data,
     required ContentType type,
-    required List<Project> existingProjects,
+    required List<DetailedProjectDto> existingProjects,
     required int userId,
   }) async {
     await _ensureDistributionModelInitialized();
@@ -298,7 +304,9 @@ class AiService implements IAiService {
       for (final dist in (dataMap['task_distributions'] as List)) {
         final projectId = dist['project_id'] as int;
         final tasksJson = dist['tasks'] as List? ?? [];
-        final tasks = tasksJson.map((taskJson) => _mapJsonToTaskModel(taskJson, projectId, type)).toList();
+        final tasks = tasksJson
+            .map((taskJson) => _mapJsonToTaskModel(taskJson, projectId, type))
+            .toList();
         existingDistributions.add(
           ProjectDistribution(projectId: projectId, tasks: tasks),
         );
@@ -323,7 +331,8 @@ class AiService implements IAiService {
       }
     }
 
-    final totalTasksProcessed = existingDistributions.fold<int>(0, (prev, e) => prev + e.tasks.length) +
+    final totalTasksProcessed =
+        existingDistributions.fold<int>(0, (prev, e) => prev + e.tasks.length) +
         newDistributions.fold<int>(0, (prev, e) => prev + e.tasks.length);
 
     return DistributionResult(
@@ -535,7 +544,7 @@ class AiService implements IAiService {
     throw UnimplementedError('Procesamiento de archivos pendiente para Fase 2');
   }
 
-  String _buildProjectsContext(List<Project> projects) {
+  String _buildProjectsContext(List<DetailedProjectDto> projects) {
     final buffer = StringBuffer('PROYECTOS DISPONIBLES:');
     final limited = projects.take(30).toList();
     for (var i = 0; i < limited.length; i++) {
@@ -545,7 +554,11 @@ class AiService implements IAiService {
     return buffer.toString();
   }
 
-  TaskModel _mapJsonToTaskModel(Map<String, dynamic> taskJson, int projectId, ContentType type) {
+  TaskModel _mapJsonToTaskModel(
+    Map<String, dynamic> taskJson,
+    int projectId,
+    ContentType type,
+  ) {
     String? dueDateString;
     if (taskJson['due_date'] != null) {
       dueDateString = taskJson['due_date'] as String;

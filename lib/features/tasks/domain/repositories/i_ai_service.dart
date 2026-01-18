@@ -1,6 +1,7 @@
 import 'dart:typed_data';
+import 'package:mi_agenda/features/tasks/domain/dtos/project_dtos.dart';
+
 import '../entities/task.dart';
-import '../entities/project.dart';
 import '../entities/distribution_result.dart';
 
 /// Tipos de contenido soportados por el servicio de IA
@@ -44,7 +45,7 @@ abstract class IAiService {
   Future<DistributionResult> processMultimodalContentWithDistribution({
     required Uint8List data,
     required ContentType type,
-    required List<Project> existingProjects,
+    required List<DetailedProjectDto> existingProjects,
     required int userId,
   });
 

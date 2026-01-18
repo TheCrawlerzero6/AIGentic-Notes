@@ -60,20 +60,20 @@ final localProviders = [
     create: (context) =>
         ProjectLocalDatasource(db: context.read<SqliteService>()),
   ),
-  Provider<IProjectRepository>(
-    create: (context) =>
-        ProjectRepository(dataSource: context.read<ProjectLocalDatasource>()),
-  ),
   Provider<TaskLocalDatasource>(
     create: (context) => TaskLocalDatasource(db: context.read<SqliteService>()),
+  ),
+  Provider<IProjectRepository>(
+    create: (context) => ProjectRepository(
+      dataSource: context.read<ProjectLocalDatasource>(),
+      tasksDataSource: context.read<TaskLocalDatasource>(),
+    ),
   ),
   Provider<ITaskRepository>(
     create: (context) =>
         TaskRepository(dataSource: context.read<TaskLocalDatasource>()),
   ),
-  Provider<AiService>(
-    create: (_) => AiService(),
-  ),
+  Provider<AiService>(create: (_) => AiService()),
   Provider<ProcessAiImageUseCase>(
     create: (context) => ProcessAiImageUseCase(
       aiService: context.read<AiService>(),

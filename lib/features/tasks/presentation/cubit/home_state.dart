@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/dtos/project_dtos.dart';
 import '../../domain/entities/system_project.dart';
 
-import '../../domain/entities/project.dart';
 
 abstract class HomeState {
   final List<SystemProject> menuItems = [
@@ -31,7 +31,7 @@ class HomeLoading extends HomeState {
 }
 
 class HomeSuccess extends HomeState {
-  final List<Project> projects;
+  final List<DetailedProjectDto> projects;
   HomeSuccess({required this.projects});
 }
 

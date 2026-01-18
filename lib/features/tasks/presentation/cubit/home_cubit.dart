@@ -97,7 +97,7 @@ class HomeCubit extends Cubit<HomeState> {
 
       int projectId;
       if (projects.isNotEmpty) {
-        projectId = projects.first.id!;
+        projectId = projects.first.id;
       } else {
         final now = DateTime.now();
         await repository.createProject(
@@ -116,7 +116,7 @@ class HomeCubit extends Cubit<HomeState> {
           debugPrint('No fue posible crear un proyecto por defecto');
           return;
         }
-        projectId = projects.first.id!;
+        projectId = projects.first.id;
       }
       debugPrint('Procesando ${contentType.name} en proyecto $projectId');
 

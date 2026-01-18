@@ -2,13 +2,14 @@ import 'package:mi_agenda/features/tasks/data/models/project_model.dart';
 
 import '../datasources/project_local_datasource.dart';
 import '../../domain/dtos/project_dtos.dart';
-import '../../domain/entities/project.dart';
 import '../../domain/repositories/project_repository.dart';
+import '../datasources/task_local_datasource.dart';
 
 class ProjectRepository extends IProjectRepository {
   final ProjectLocalDatasource dataSource;
+  final TaskLocalDatasource tasksDataSource;
 
-  ProjectRepository({required this.dataSource});
+  ProjectRepository({required this.dataSource, required this.tasksDataSource});
 
   @override
   Future<int> createProject(CreateProjectDto data) async {
@@ -31,13 +32,45 @@ class ProjectRepository extends IProjectRepository {
   }
 
   @override
-  Future<Project?> getProjectDetail(int id) async {
-    return await dataSource.getDetail(id);
+  Future<DetailedProjectDto?> getProjectDetail(int id) async {
+    final project = await dataSource.getDetail(id);
+
+    final tasks = await tasksDataSource.getAllByProjectId(project.id!);
+    final result = DetailedProjectDto(
+      id: project.id!,
+      title: project.title,
+      description: project.description,
+      icon: project.icon,
+      themeColor: project.themeColor,
+      tasks: tasks,
+      userId: project.userId,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+    );
+    return result;
   }
 
   @override
-  Future<List<Project>> listProjects() async {
-    return await dataSource.getAll();
+  Future<List<DetailedProjectDto>> listProjects() async {
+    final projects = await dataSource.getAll();
+    List<DetailedProjectDto> resultsList = [];
+
+    for (final project in projects) {
+      final tasks = await tasksDataSource.getAllByProjectId(project.id!);
+      final result = DetailedProjectDto(
+        id: project.id!,
+        title: project.title,
+        icon: project.icon,
+        description: project.description,
+        themeColor: project.themeColor,
+        tasks: tasks,
+        userId: project.userId,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+      );
+      resultsList.add(result);
+    }
+    return resultsList;
   }
 
   @override

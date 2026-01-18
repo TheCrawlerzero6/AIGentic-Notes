@@ -6,8 +6,8 @@ import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
+import '../../domain/dtos/project_dtos.dart';
 import '../../domain/repositories/i_ai_service.dart';
-import '../../domain/entities/project.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/ai_options_widget.dart';
 import '../widgets/audio_recorder_widget.dart';
@@ -225,7 +225,7 @@ Widget getSystemTile({
 
 Widget getMenuTile({
   required BuildContext context,
-  required Project listItem,
+  required DetailedProjectDto listItem,
   IconData icon = Icons.list,
   Color color = const Color(0xFF6255F5),
 }) {
