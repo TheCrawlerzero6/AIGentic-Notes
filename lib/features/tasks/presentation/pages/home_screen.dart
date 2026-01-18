@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UserAppBar(context),
+      appBar: UserAppBar(context, user: context.read<HomeCubit>().currentUser!),
 
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {
@@ -217,7 +217,6 @@ Widget getSystemTile({
     title: Text(listItem.labelText),
     subtitle: null,
     onTap: () {
-      
       context.push(listItem.route);
     },
   );

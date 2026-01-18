@@ -48,14 +48,6 @@ final localProviders = [
   Provider<LogoutUsecase>(
     create: (context) => LogoutUsecase(context.read<IAuthRepository>()),
   ),
-  BlocProvider<AuthCubit>(
-    create: (context) => AuthCubit(
-      login: context.read<LoginUsecase>(),
-      register: context.read<RegisterUsecase>(),
-      restoreSession: context.read<RestoreSession>(),
-      logout: context.read<LogoutUsecase>(),
-    )..checkSession(),
-  ),
   Provider<ProjectLocalDatasource>(
     create: (context) =>
         ProjectLocalDatasource(db: context.read<SqliteService>()),
@@ -72,6 +64,16 @@ final localProviders = [
   Provider<ITaskRepository>(
     create: (context) =>
         TaskRepository(dataSource: context.read<TaskLocalDatasource>()),
+  ),
+
+  BlocProvider<AuthCubit>(
+    create: (context) => AuthCubit(
+      login: context.read<LoginUsecase>(),
+      register: context.read<RegisterUsecase>(),
+      restoreSession: context.read<RestoreSession>(),
+      logout: context.read<LogoutUsecase>(),
+      taskRepository: context.read<ITaskRepository>(),
+    )..checkSession(),
   ),
   Provider<AiService>(create: (_) => AiService()),
   Provider<ProcessAiImageUseCase>(

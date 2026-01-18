@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 import '../../domain/repositories/i_ai_service.dart';
 import '../../domain/dtos/project_dtos.dart';
 import '../../domain/repositories/project_repository.dart';
@@ -25,6 +27,15 @@ class HomeCubit extends Cubit<HomeState> {
     required this.processAudioUseCase,
     required this.processDistributionUseCase,
   }) : super(HomeInitial());
+
+  User? get currentUser {
+    final state = authCubit.state;
+    if (state is AuthAuthenticated) {
+      return state.user;
+    }
+    return null;
+  }
+
   Future<void> createProject(String title) async {
     emit(HomeLoading());
 
@@ -66,10 +77,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  Future<void> processWithAI(
-    Uint8List bytes,
-    ContentType contentType,
-  ) async {
+  Future<void> processWithAI(Uint8List bytes, ContentType contentType) async {
     try {
       final user = authCubit.currentUser;
       if (user == null) {
@@ -80,7 +88,8 @@ class HomeCubit extends Cubit<HomeState> {
       // Obtener el primer proyecto del usuario (o crear uno por defecto)
       var projects = await repository.listProjects();
 
-      if (Constants.INTELLIGENT_DISTRIBUTION && contentType != ContentType.file) {
+      if (Constants.INTELLIGENT_DISTRIBUTION &&
+          contentType != ContentType.file) {
         final result = await processDistributionUseCase(
           bytes: bytes,
           contentType: contentType,
@@ -137,7 +146,7 @@ class HomeCubit extends Cubit<HomeState> {
       }
 
       debugPrint('Se crearon $tasksCreated tareas');
-      
+
       // Recargar proyectos para actualizar UI
       await listProjects();
     } catch (e) {

@@ -55,8 +55,9 @@ class ProfileScreen extends StatelessWidget {
     // final pendingCount = taskProvider.tasks
     //     .where((t) => t.isCompleted == 0)
     //     .length;
-    final completedCount = 0;
-    final pendingCount = 0;
+    final completedCount = context.read<AuthCubit>().completedTasks;
+    final pendingCount = context.read<AuthCubit>().pendingTasks;
+    
     // Calcular racha (días consecutivos con tareas completadas)
     int streak = 0;
     final now = DateTime.now();

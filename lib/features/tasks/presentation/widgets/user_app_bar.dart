@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../auth/domain/entities/user.dart';
+
 class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const UserAppBar(BuildContext context, {super.key});
+  final User user;
+  const UserAppBar(BuildContext context, {super.key, required this.user});
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -25,12 +28,12 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Alan Steven Bajaña Granizo",
+                  user.username!,
                   textAlign: TextAlign.start,
                   style: TextStyle(fontSize: 16),
                 ),
                 Text(
-                  "allan@admin.com",
+                  user.username!,
                   textAlign: TextAlign.start,
 
                   style: TextStyle(

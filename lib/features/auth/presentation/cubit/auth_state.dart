@@ -10,7 +10,10 @@ class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
   final User user;
-  const AuthAuthenticated(this.user);
+  final int completedTasks;
+
+  final int pendingTasks;
+  const AuthAuthenticated(this.user, this.completedTasks, this.pendingTasks);
 }
 
 class AuthUnauthenticated extends AuthState {}
