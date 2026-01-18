@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mi_agenda/features/tasks/domain/repositories/project_repository.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/detail_cubit.dart';
+import 'package:mi_agenda/features/tasks/presentation/pages/agenda_screen.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/task_detail_screen.dart';
+import 'package:mi_agenda/features/tasks/presentation/pages/today_screen.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/wip_screen.dart';
 
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
@@ -46,6 +48,37 @@ class AppRouter {
       routes: [
         GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
         GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
+        GoRoute(
+          path: '/projects/today',
+          builder: (context, state) {
+            final projectId = int.parse(state.pathParameters['projectId']!);
+            return BlocProvider(
+              create: (context) => TaskCubit(
+                repository: context.read<ITaskRepository>(),
+                projectRepository: context.read<IProjectRepository>(),
+                authCubit: context.read<AuthCubit>(),
+                projectId: projectId,
+              )..listTasks(),
+              child: TodayScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/projects/agenda',
+          builder: (context, state) {
+            final projectId = int.parse(state.pathParameters['projectId']!);
+            return BlocProvider(
+              create: (context) => TaskCubit(
+                repository: context.read<ITaskRepository>(),
+                projectRepository: context.read<IProjectRepository>(),
+                authCubit: context.read<AuthCubit>(),
+                projectId: projectId,
+              )..listTasks(),
+              child: AgendaScreen(),
+            );
+          },
+        ),
+
         GoRoute(
           path: '/projects/:projectId',
           builder: (context, state) {

@@ -217,8 +217,8 @@ Widget getSystemTile({
     title: Text(listItem.labelText),
     subtitle: null,
     onTap: () {
-      debugPrint("tapped system project");
-      // context.push("/projects/${listItem.labelText}");
+      
+      context.push(listItem.route);
     },
   );
 }
@@ -229,7 +229,10 @@ Widget getMenuTile({
   IconData icon = Icons.list,
   Color color = const Color(0xFF6255F5),
 }) {
-  final progress = 0.5;
+  final progress = listItem.tasks.isNotEmpty
+      ? listItem.tasks.where((task) => task.isCompleted).length /
+            listItem.tasks.length
+      : 0.0;
   return ListTile(
     minTileHeight: 56,
     leading: Container(

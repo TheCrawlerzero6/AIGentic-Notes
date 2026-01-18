@@ -10,10 +10,12 @@ abstract class HomeState {
       labelText: 'Para Hoy',
       icon: Icons.access_time_filled,
       progress: 0.7,
+      route: '/projects/today',
       isTracked: true,
     ),
     const SystemProject(
       labelText: 'Agenda',
+      route: '/projects/agenda',
       icon: Icons.calendar_month,
       progress: 0.4,
       isTracked: false,

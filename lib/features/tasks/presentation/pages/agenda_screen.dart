@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mi_agenda/features/tasks/presentation/cubit/system_cubit.dart';
+import 'package:mi_agenda/features/tasks/presentation/cubit/system_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/task_item_tile.dart';
-import '../../presentation/cubit/task_cubit.dart';
-import '../../presentation/cubit/task_state.dart';
 import '../widgets/add_task_bottom_sheet.dart';
 import '../widgets/task_placeholder_line.dart';
 
-class TasksScreen extends StatefulWidget {
-  final int projectId;
-  const TasksScreen({super.key, required this.projectId});
+class AgendaScreen extends StatefulWidget {
+  const AgendaScreen({super.key});
 
   @override
-  State<TasksScreen> createState() => _TasksScreenState();
+  State<AgendaScreen> createState() => _AgendaScreenState();
 }
 
-class _TasksScreenState extends State<TasksScreen> with RouteAware {
+class _AgendaScreenState extends State<AgendaScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
-    context.read<TaskCubit>().listTasks();
+    context.read<SystemCubit>().listTasks();
   }
 
   @override
   void didPopNext() {
-    context.read<TaskCubit>().listTasks();
+    context.read<SystemCubit>().listTasks();
   }
 
   void _openAddBottomSheet() {
@@ -34,7 +33,7 @@ class _TasksScreenState extends State<TasksScreen> with RouteAware {
         return AddTaskBottomSheet(
           onAdd: (title, dueDate) async {
             try {
-              await context.read<TaskCubit>().createTask(title, dueDate);
+              await context.read<SystemCubit>().createTask(title, dueDate);
 
               if (mounted) {
                 Navigator.of(context).pop();
@@ -73,14 +72,10 @@ class _TasksScreenState extends State<TasksScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TaskCubit, TaskState>(
+    return BlocBuilder<SystemCubit, SystemState>(
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              state is TaskSuccess ? state.selectedProject.title : 'Proyecto',
-            ),
-          ),
+          appBar: AppBar(title: Text('Agenda')),
           floatingActionButton: FloatingActionButton(
             backgroundColor: const Color(0xFF6750A4),
             onPressed: _openAddBottomSheet,
@@ -99,10 +94,10 @@ class _TasksScreenState extends State<TasksScreen> with RouteAware {
     );
   }
 
-  Widget _buildBody(TaskState state) {
-    if (state is TaskLoading) {
+  Widget _buildBody(SystemState state) {
+    if (state is SystemLoading) {
       return Center(child: CircularProgressIndicator());
-    } else if (state is TaskSuccess && state.tasks.isNotEmpty) {
+    } else if (state is SystemSuccess && state.tasks.isNotEmpty) {
       return ListView.builder(
         itemCount: state.tasks.length < 10 ? 10 : state.tasks.length,
 
@@ -115,7 +110,7 @@ class _TasksScreenState extends State<TasksScreen> with RouteAware {
           }
         },
       );
-    } else if (state is TaskError) {
+    } else if (state is SystemError) {
       return Center(child: Text(state.message));
     } else {
       return ListView.builder(
