@@ -1,32 +1,35 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:mi_agenda/core/constants.dart';
 
 import '../models/task_model.dart';
+import '../../domain/repositories/i_ai_service.dart';
+import '../../domain/entities/task.dart';
+import '../../domain/entities/project.dart';
+import '../../domain/entities/distribution_result.dart';
+import '../../domain/dtos/distribution_dtos.dart';
 
-/// Tipos de contenido soportados por el servicio de IA
-enum ContentType {
-  image, // Imágenes (JPG, PNG)
-  audio, // Audio (AAC, WAV, MP3, OGG, FLAC)
-  file, // Archivos (Excel, PDF, Word)
-}
-
-class AiService {
+class AiService implements IAiService {
   // Singleton
   static final AiService _instance = AiService._internal();
   factory AiService() => _instance;
   AiService._internal();
 
   GenerativeModel? _model;
+  GenerativeModel? _distributionModel;
   bool _isInitialized = false;
 
   // Contador de solicitudes para debugging
   int _totalRequests = 0;
   final List<DateTime> _requestTimestamps = [];
 
-  /// Obtiene el número total de solicitudes hechas en esta sesión
+  @override
   int get totalRequests => _totalRequests;
+
+  @override
+  bool get isInitialized => _isInitialized;
 
   /// Obtiene el número de solicitudes en los últimos 60 segundos
   int getRequestsInLastMinute() {
@@ -55,6 +58,7 @@ class AiService {
     }
   }
 
+  @override
   Future<void> initialize() async {
     if (_isInitialized) return;
 
@@ -69,7 +73,7 @@ class AiService {
           temperature: 0.2,
           topK: 32,
           topP: 1.0,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 4096,
           responseMimeType: 'application/json',
           responseSchema: Schema.object(
             properties: {
@@ -109,10 +113,90 @@ class AiService {
     }
   }
 
-  /// Testing: Validar que la conexión con Gemini funciona correctamente
-  ///
-  /// Envía un prompt simple y retorna la respuesta para verificar
-  /// que el modelo está accesible y respondiendo.
+  Future<void> _ensureDistributionModelInitialized() async {
+    if (_distributionModel != null) return;
+    try {
+      final ai = FirebaseAI.googleAI();
+      _distributionModel = ai.generativeModel(
+        model: 'gemini-2.5-flash',
+        generationConfig: GenerationConfig(
+          temperature: 0.2,
+          topK: 32,
+          topP: 1.0,
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+          responseSchema: Schema.object(
+            properties: {
+              'task_distributions': Schema.array(
+                items: Schema.object(
+                  properties: {
+                    'project_id': Schema.integer(),
+                    'tasks': Schema.array(
+                      items: Schema.object(
+                        properties: {
+                          'title': Schema.string(description: 'Título de la tarea'),
+                          'description': Schema.string(
+                            description: 'Descripción detallada',
+                            nullable: true,
+                          ),
+                          'due_date': Schema.string(
+                            description: 'Fecha ISO8601',
+                            format: 'date-time',
+                            nullable: true,
+                          ),
+                          'priority': Schema.integer(
+                            description: '1=Baja, 2=Media, 3=Alta',
+                            minimum: 1,
+                            maximum: 3,
+                          ),
+                        },
+                        optionalProperties: ['description', 'due_date'],
+                      ),
+                    ),
+                  },
+                ),
+              ),
+              'new_projects': Schema.array(
+                items: Schema.object(
+                  properties: {
+                    'title': Schema.string(description: 'Título del proyecto nuevo'),
+                    'suggested_description': Schema.string(nullable: true),
+                    'suggested_icon': Schema.string(nullable: true),
+                    'tasks': Schema.array(
+                      items: Schema.object(
+                        properties: {
+                          'title': Schema.string(description: 'Título de la tarea'),
+                          'description': Schema.string(
+                            description: 'Descripción detallada',
+                            nullable: true,
+                          ),
+                          'due_date': Schema.string(
+                            description: 'Fecha ISO8601',
+                            format: 'date-time',
+                            nullable: true,
+                          ),
+                          'priority': Schema.integer(
+                            description: '1=Baja, 2=Media, 3=Alta',
+                            minimum: 1,
+                            maximum: 3,
+                          ),
+                        },
+                        optionalProperties: ['description', 'due_date'],
+                      ),
+                    ),
+                  },
+                ),
+              ),
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('AiService: Error inicializando modelo de distribución - $e');
+      rethrow;
+    }
+  }
+
   Future<String> testConnection() async {
     if (!_isInitialized) await initialize();
 
@@ -146,8 +230,8 @@ class AiService {
     }
   }
 
-  /// Procesa contenido multimodal (imagen, audio, archivo) y extrae tareas
-  Future<List<TaskModel>> processMultimodalContent({
+  @override
+  Future<List<Task>> processMultimodalContent({
     required Uint8List data,
     required ContentType type,
     required int userId,
@@ -158,12 +242,97 @@ class AiService {
 
     switch (type) {
       case ContentType.image:
-        return _processImage(data, userId);
+        return await _processImage(data, userId);
       case ContentType.audio:
-        return _processAudio(data, userId);
+        return await _processAudio(data, userId);
       case ContentType.file:
-        return _processFile(data, userId);
+        return await _processFile(data, userId);
     }
+  }
+
+  @override
+  Future<DistributionResult> processMultimodalContentWithDistribution({
+    required Uint8List data,
+    required ContentType type,
+    required List<Project> existingProjects,
+    required int userId,
+  }) async {
+    await _ensureDistributionModelInitialized();
+
+    _registerRequest();
+
+    final projectsContext = _buildProjectsContext(existingProjects);
+
+    Content content;
+    switch (type) {
+      case ContentType.image:
+        content = Content.multi([
+          TextPart(Constants.getImagePrompt(projectsContext)),
+          InlineDataPart('image/jpeg', data),
+        ]);
+        break;
+      case ContentType.audio:
+        content = Content.multi([
+          TextPart(Constants.getAudioPrompt(projectsContext)),
+          InlineDataPart(Constants.AUDIO_MIME_TYPE, data),
+        ]);
+        break;
+      case ContentType.file:
+        throw UnimplementedError('Distribución para archivos no implementada');
+    }
+
+    final response = await _distributionModel!.generateContent([content]);
+
+    final rawText = response.text;
+    if (rawText == null || rawText.isEmpty) {
+      throw Exception('La IA no devolvió contenido');
+    }
+
+    final jsonText = _extractJson(rawText);
+    final Map<String, dynamic> dataMap = jsonDecode(jsonText);
+
+    final existingDistributions = <ProjectDistribution>[];
+    final newDistributions = <NewProjectDistribution>[];
+
+    if (dataMap['task_distributions'] is List) {
+      for (final dist in (dataMap['task_distributions'] as List)) {
+        final projectId = dist['project_id'] as int;
+        final tasksJson = dist['tasks'] as List? ?? [];
+        final tasks = tasksJson.map((taskJson) => _mapJsonToTaskModel(taskJson, projectId, type)).toList();
+        existingDistributions.add(
+          ProjectDistribution(projectId: projectId, tasks: tasks),
+        );
+      }
+    }
+
+    if (dataMap['new_projects'] is List) {
+      for (final proj in (dataMap['new_projects'] as List)) {
+        final title = proj['title'] as String? ?? '';
+        final tasksJson = proj['tasks'] as List? ?? [];
+        final tasks = tasksJson
+            .map((taskJson) => _mapJsonToTaskModel(taskJson, 0, type))
+            .toList();
+        newDistributions.add(
+          NewProjectDistribution(
+            title: title,
+            suggestedDescription: proj['suggested_description'] as String?,
+            suggestedIcon: proj['suggested_icon'] as String?,
+            tasks: tasks,
+          ),
+        );
+      }
+    }
+
+    final totalTasksProcessed = existingDistributions.fold<int>(0, (prev, e) => prev + e.tasks.length) +
+        newDistributions.fold<int>(0, (prev, e) => prev + e.tasks.length);
+
+    return DistributionResult(
+      existingProjectDistributions: existingDistributions,
+      newProjectDistributions: newDistributions,
+      totalTasksProcessed: totalTasksProcessed,
+      projectsUsed: existingDistributions.length,
+      newProjectsCreated: newDistributions.length,
+    );
   }
 
   /// Procesa imagen con Gemini Vision
@@ -366,23 +535,49 @@ class AiService {
     throw UnimplementedError('Procesamiento de archivos pendiente para Fase 2');
   }
 
+  String _buildProjectsContext(List<Project> projects) {
+    final buffer = StringBuffer('PROYECTOS DISPONIBLES:');
+    final limited = projects.take(30).toList();
+    for (var i = 0; i < limited.length; i++) {
+      final p = limited[i];
+      buffer.writeln('\n${i + 1}. ID:${p.id} | "${p.title}"');
+    }
+    return buffer.toString();
+  }
+
+  TaskModel _mapJsonToTaskModel(Map<String, dynamic> taskJson, int projectId, ContentType type) {
+    String? dueDateString;
+    if (taskJson['due_date'] != null) {
+      dueDateString = taskJson['due_date'] as String;
+    }
+
+    final mappedSource = switch (type) {
+      ContentType.image => 'image',
+      ContentType.audio => 'voice',
+      ContentType.file => 'file',
+    };
+
+    return TaskModel(
+      id: 0,
+      title: taskJson['title'] as String? ?? '',
+      description: taskJson['description'] as String? ?? '',
+      dueDate: (dueDateString != null && dueDateString.isNotEmpty)
+          ? DateTime.parse(dueDateString)
+          : null,
+      isCompleted: false,
+      projectId: projectId,
+      priority: taskJson['priority'] as int? ?? 2,
+      sourceType: mappedSource,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
   /// Extrae JSON de markdown fences si existe
   String _extractJson(String text) {
     final jsonPattern = RegExp(r'```json\s*([\s\S]*?)\s*```');
     final match = jsonPattern.firstMatch(text);
     return match != null ? match.group(1)! : text.trim();
-  }
-
-  /// @deprecated Usar processMultimodalContent()
-  Future<List<TaskModel>> processImageToTasks({
-    required Uint8List imageBytes,
-    required int userId,
-  }) async {
-    return processMultimodalContent(
-      data: imageBytes,
-      type: ContentType.image,
-      userId: userId,
-    );
   }
 
   /// Procesa texto natural y lo convierte en una o más tareas

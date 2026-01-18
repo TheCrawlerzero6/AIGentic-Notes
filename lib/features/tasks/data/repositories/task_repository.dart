@@ -28,6 +28,35 @@ class TaskRepository extends ITaskRepository {
   }
 
   @override
+  Future<int> createTasksBatch(List<CreateTaskDto> tasks) async {
+    if (tasks.isEmpty) return 0;
+
+    final database = await dataSource.db.database;
+    int insertedCount = 0;
+
+    await database.transaction((txn) async {
+      for (var data in tasks) {
+        final taskModel = TaskModel(
+          title: data.title,
+          description: data.description,
+          dueDate: data.dueDate,
+          isCompleted: data.isCompleted,
+          sourceType: data.sourceType,
+          priority: data.priority,
+          projectId: data.projectId,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+        );
+
+        await txn.insert('tasks', taskModel.toMap());
+        insertedCount++;
+      }
+    });
+
+    return insertedCount;
+  }
+
+  @override
   Future<int> deleteMassiveOldTasks(int id) {
     // TODO: implement deleteMassiveOldTasks
     throw UnimplementedError();

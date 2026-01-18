@@ -6,7 +6,7 @@ import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
 
-import '../../data/services/ai_service.dart';
+import '../../domain/repositories/i_ai_service.dart';
 import '../../domain/entities/project.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/ai_options_widget.dart';

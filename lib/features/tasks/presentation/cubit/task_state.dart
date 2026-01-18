@@ -24,3 +24,14 @@ class TaskError extends TaskState {
   final String message;
   TaskError({required this.message});
 }
+
+class TaskProcessingAI extends TaskState {
+  final String message;
+  TaskProcessingAI({required this.message});
+}
+
+class TaskAiSuccess extends TaskState {
+  final int tasksCreated;
+  final String message;
+  TaskAiSuccess({required this.tasksCreated, required this.message});
+}

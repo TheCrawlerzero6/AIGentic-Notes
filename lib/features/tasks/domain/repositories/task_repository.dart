@@ -7,6 +7,7 @@ abstract class ITaskRepository {
   Future<Task?> getTaskDetail(int id);
 
   Future<int> createTask(CreateTaskDto data);
+  Future<int> createTasksBatch(List<CreateTaskDto> tasks);
   Future<int> updateTask(int id, UpdateTaskDto data);
   Future<int> deleteTask(int id);
 
