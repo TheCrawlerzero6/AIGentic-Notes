@@ -3,6 +3,8 @@ import '../../domain/dtos/task_dtos.dart';
 import '../entities/task.dart';
 
 abstract class ITaskRepository {
+  
+  Future<List<Task>> listAllTasks();
   Future<List<Task>> listTasks(int projectId);
   Future<Task?> getTaskDetail(int id);
 

@@ -16,6 +16,7 @@ import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/tasks/domain/repositories/task_repository.dart';
+import '../../features/tasks/presentation/cubit/system_cubit.dart';
 import '../../features/tasks/presentation/cubit/task_cubit.dart';
 import '../../features/tasks/presentation/pages/home_screen.dart';
 import '../../features/tasks/presentation/pages/tasks_screen.dart';
@@ -51,13 +52,11 @@ class AppRouter {
         GoRoute(
           path: '/projects/today',
           builder: (context, state) {
-            final projectId = int.parse(state.pathParameters['projectId']!);
             return BlocProvider(
-              create: (context) => TaskCubit(
+              create: (context) => SystemCubit(
                 repository: context.read<ITaskRepository>(),
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
-                projectId: projectId,
               )..listTasks(),
               child: TodayScreen(),
             );
@@ -66,13 +65,11 @@ class AppRouter {
         GoRoute(
           path: '/projects/agenda',
           builder: (context, state) {
-            final projectId = int.parse(state.pathParameters['projectId']!);
             return BlocProvider(
-              create: (context) => TaskCubit(
+              create: (context) => SystemCubit(
                 repository: context.read<ITaskRepository>(),
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
-                projectId: projectId,
               )..listTasks(),
               child: AgendaScreen(),
             );

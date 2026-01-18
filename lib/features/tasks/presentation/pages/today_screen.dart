@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/system_cubit.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/system_state.dart';
 import '../../domain/entities/task.dart';
-import '../widgets/add_task_bottom_sheet.dart';
 import '../widgets/task_item_tile.dart';
 import '../widgets/task_placeholder_line.dart';
 
@@ -27,62 +26,12 @@ class _TodayScreenState extends State<TodayScreen> with RouteAware {
     context.read<SystemCubit>().listTasks();
   }
 
-  void _openAddBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (modalContext) {
-        return AddTaskBottomSheet(
-          onAdd: (title, dueDate) async {
-            try {
-              await context.read<SystemCubit>().createTask(title, dueDate);
-
-              if (mounted) {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Tarea creada exitosamente',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.green,
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            } catch (e) {
-              if (mounted) {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Error creando tarea: ${e.toString()}",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.red,
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              }
-            }
-            // }
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SystemCubit, SystemState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(title: Text('Para Hoy')),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: const Color(0xFF6750A4),
-            onPressed: _openAddBottomSheet,
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
 
           body: Padding(
             padding: const EdgeInsets.symmetric(
@@ -116,7 +65,11 @@ class _TodayScreenState extends State<TodayScreen> with RouteAware {
         itemBuilder: (context, index) {
           if (index < todayTasksList.length) {
             final item = todayTasksList[index];
-            return TaskItemTile(task: item);
+            void toggleItem() async {
+              await context.read<SystemCubit>().toggleTask(item.id!);
+            }
+
+            return TaskItemTile(task: item, onToggle: toggleItem);
           } else {
             return const TaskPlaceholderLine();
           }

@@ -109,7 +109,11 @@ class _TasksScreenState extends State<TasksScreen> with RouteAware {
         itemBuilder: (context, index) {
           if (index < state.tasks.length) {
             final item = state.tasks[index];
-            return TaskItemTile(task: item);
+            void toggleItem() async {
+              await context.read<TaskCubit>().toggleTask(item.id!);
+            }
+
+            return TaskItemTile(task: item, onToggle: toggleItem);
           } else {
             return const TaskPlaceholderLine();
           }

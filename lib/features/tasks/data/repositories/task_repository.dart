@@ -78,6 +78,11 @@ class TaskRepository extends ITaskRepository {
   }
 
   @override
+  Future<List<Task>> listAllTasks() async {
+    return await dataSource.getAll();
+  }
+
+  @override
   Future<int> toggleTaskComplete(int id) async {
     final currentTask = await dataSource.getDetail(id);
 

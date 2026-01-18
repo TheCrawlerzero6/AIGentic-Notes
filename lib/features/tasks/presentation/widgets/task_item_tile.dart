@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/entities/task.dart';
-import '../cubit/system_cubit.dart';
 import 'radio_checkbox.dart';
 
 class TaskItemTile extends StatelessWidget {
   final Task task;
-  const TaskItemTile({super.key, required this.task});
+
+  final VoidCallback onToggle;
+  const TaskItemTile({super.key, required this.task, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +25,7 @@ class TaskItemTile extends StatelessWidget {
             borderColor: Theme.of(
               context,
             ).textTheme.bodyLarge!.color!.withAlpha(160),
-            onTap: () {
-              context.read<SystemCubit>().toggleTask(task.id!);
-            },
+            onTap: onToggle,
           ),
           minTileHeight: 64,
           title: Text(task.title),
