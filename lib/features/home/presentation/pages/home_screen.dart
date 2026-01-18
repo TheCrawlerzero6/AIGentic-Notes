@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Center(child: Text(state.message))
                   else
                     Center(child: Text("No se han creado proyectos aún")),
-                  Spacer(),
+
                   ListTile(
                     minTileHeight: 56,
                     leading: SizedBox(
