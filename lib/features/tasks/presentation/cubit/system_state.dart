@@ -1,4 +1,4 @@
-import '../../domain/entities/task.dart';
+import '../../../../core/domain/entities/task.dart';
 
 abstract class SystemState {
   SystemState();

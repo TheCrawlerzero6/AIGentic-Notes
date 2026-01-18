@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mi_agenda/features/tasks/domain/dtos/project_dtos.dart';
+import 'package:mi_agenda/core/domain/dtos/project_dtos.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart';
-import '../../domain/dtos/task_dtos.dart';
-import '../../domain/repositories/project_repository.dart';
-import '../../domain/repositories/task_repository.dart';
+import '../../../../core/domain/dtos/task_dtos.dart';
+import '../../../../core/domain/repositories/project_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
 import 'task_state.dart';
 
 class TaskCubit extends Cubit<TaskState> {

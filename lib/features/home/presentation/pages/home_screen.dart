@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mi_agenda/features/tasks/domain/entities/system_project.dart';
-import 'package:mi_agenda/features/tasks/presentation/cubit/home_state.dart';
-import 'package:mi_agenda/features/tasks/presentation/widgets/add_project_bottom_sheet.dart';
-import 'package:mi_agenda/features/tasks/presentation/widgets/user_app_bar.dart';
+import '../widgets/add_project_bottom_sheet.dart';
+import '../widgets/user_app_bar.dart';
 
-import '../../domain/dtos/project_dtos.dart';
+import 'package:mi_agenda/core/domain/entities/system_project.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
 import '../../domain/repositories/i_ai_service.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/ai_options_widget.dart';
 import '../widgets/audio_recorder_widget.dart';
 import '../widgets/file_picker_widget.dart';
+import '../cubit/home_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

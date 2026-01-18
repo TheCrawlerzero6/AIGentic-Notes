@@ -4,24 +4,24 @@ import 'package:mi_agenda/features/auth/domain/usecases/login_usecase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/register_usercase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/restore_session.dart';
-import 'package:mi_agenda/features/tasks/data/datasources/project_local_datasource.dart';
-import 'package:mi_agenda/core/services/sqlite_service.dart';
+import 'package:mi_agenda/features/home/data/datasources/project_local_datasource.dart';
+import 'package:mi_agenda/core/data/services/sqlite_service.dart';
 import 'package:mi_agenda/features/tasks/data/datasources/task_local_datasource.dart';
 import 'package:mi_agenda/features/tasks/data/repositories/task_repository.dart';
-import 'package:mi_agenda/features/tasks/data/services/ai_service.dart';
-import 'package:mi_agenda/features/tasks/domain/repositories/project_repository.dart';
-import 'package:mi_agenda/features/tasks/domain/repositories/task_repository.dart';
-import 'package:mi_agenda/features/tasks/domain/usecases/process_ai_audio.dart';
-import 'package:mi_agenda/features/tasks/domain/usecases/process_ai_image.dart';
-import 'package:mi_agenda/features/tasks/domain/usecases/process_ai_distribution.dart';
-import 'package:mi_agenda/features/tasks/presentation/cubit/home_cubit.dart';
+import 'package:mi_agenda/features/home/data/services/ai_service.dart';
+import 'package:mi_agenda/core/domain/repositories/project_repository.dart';
+import 'package:mi_agenda/core/domain/repositories/task_repository.dart';
+import 'package:mi_agenda/features/home/domain/usecases/process_ai_audio.dart';
+import 'package:mi_agenda/features/home/domain/usecases/process_ai_image.dart';
+import 'package:mi_agenda/features/home/domain/usecases/process_ai_distribution.dart';
+import 'package:mi_agenda/features/home/presentation/cubit/home_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
-import '../../features/tasks/data/repositories/project_repository.dart';
+import '../../features/home/data/repositories/project_repository.dart';
 
 // import 'ui/screens/home/home_screen.dart';
 final localProviders = [
@@ -56,10 +56,8 @@ final localProviders = [
     create: (context) => TaskLocalDatasource(db: context.read<SqliteService>()),
   ),
   Provider<IProjectRepository>(
-    create: (context) => ProjectRepository(
-      dataSource: context.read<ProjectLocalDatasource>(),
-      tasksDataSource: context.read<TaskLocalDatasource>(),
-    ),
+    create: (context) =>
+        ProjectRepository(dataSource: context.read<ProjectLocalDatasource>()),
   ),
   Provider<ITaskRepository>(
     create: (context) =>

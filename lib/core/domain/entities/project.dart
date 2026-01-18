@@ -1,4 +1,4 @@
-import '../../../../core/entities/base.dart';
+import 'base.dart';
 
 abstract class Project extends Entity {
   final String title;

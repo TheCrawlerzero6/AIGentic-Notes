@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
-import '../dtos/distribution_execution_result.dart';
-import '../dtos/project_dtos.dart';
-import '../dtos/task_dtos.dart';
-import '../helpers/task_datetime_calculator.dart';
+import '../../../../core/domain/dtos/distribution_execution_result.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
+import '../../../../core/domain/dtos/task_dtos.dart';
+import '../../../../core/data/helpers/task_datetime_calculator.dart';
 import '../repositories/i_ai_service.dart';
-import '../repositories/project_repository.dart';
-import '../repositories/task_repository.dart';
-import '../validators/task_validator.dart';
+import '../../../../core/domain/repositories/project_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
+import '../../../../core/data/validators/task_validator.dart';
 
 class ProcessAiDistributionUseCase {
   final IAiService aiService;

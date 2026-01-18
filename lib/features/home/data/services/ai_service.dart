@@ -1,15 +1,14 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:mi_agenda/core/constants.dart';
 
-import '../../domain/dtos/project_dtos.dart';
-import '../models/task_model.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
+import '../../../../core/data/models/task_model.dart';
 import '../../domain/repositories/i_ai_service.dart';
-import '../../domain/entities/task.dart';
-import '../../domain/entities/distribution_result.dart';
-import '../../domain/dtos/distribution_dtos.dart';
+import '../../../../core/domain/entities/task.dart';
+import '../../../../core/domain/dtos/distribution_dtos.dart';
+import '../../../../core/domain/entities/distribution_result.dart';
 
 class AiService implements IAiService {
   // Singleton

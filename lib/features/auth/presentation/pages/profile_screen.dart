@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mi_agenda/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/services/notification_service.dart';
+import '../../../../core/data/services/notification_service.dart';
 
 /// Pantalla de perfil de usuario
 ///
@@ -48,23 +48,12 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUser = context.read<AuthCubit>().currentUser;
 
-    // Calcular estadísticas reales
-    // final completedCount = taskProvider.tasks
-    //     .where((t) => t.isCompleted == 1)
-    //     .length;
-    // final pendingCount = taskProvider.tasks
-    //     .where((t) => t.isCompleted == 0)
-    //     .length;
     final completedCount = context.read<AuthCubit>().completedTasks;
     final pendingCount = context.read<AuthCubit>().pendingTasks;
     
-    // Calcular racha (días consecutivos con tareas completadas)
     int streak = 0;
     final now = DateTime.now();
     final completedTasks = [];
-    // taskProvider.tasks
-    //     .where((t) => t.isCompleted == 1 && t.completedAt != null)
-    //     .toList();
     if (completedTasks.isNotEmpty) {
       completedTasks.sort(
         (a, b) => DateTime.parse(

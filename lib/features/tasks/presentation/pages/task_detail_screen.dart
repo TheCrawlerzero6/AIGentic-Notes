@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:mi_agenda/features/tasks/domain/dtos/task_dtos.dart';
+import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
 
-import '../../domain/entities/task.dart';
+import '../../../../core/domain/entities/task.dart';
 import '../cubit/detail_cubit.dart';
 import '../cubit/detail_state.dart';
 import '../widgets/time_picker_spinner.dart';

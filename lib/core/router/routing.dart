@@ -3,22 +3,22 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mi_agenda/features/tasks/domain/repositories/project_repository.dart';
+import 'package:mi_agenda/core/domain/repositories/project_repository.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/detail_cubit.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/agenda_screen.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/task_detail_screen.dart';
 import 'package:mi_agenda/features/tasks/presentation/pages/today_screen.dart';
-import 'package:mi_agenda/features/tasks/presentation/pages/wip_screen.dart';
+import 'package:mi_agenda/features/home/presentation/pages/wip_screen.dart';
 
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
-import '../../features/tasks/domain/repositories/task_repository.dart';
+import '../domain/repositories/task_repository.dart';
 import '../../features/tasks/presentation/cubit/system_cubit.dart';
 import '../../features/tasks/presentation/cubit/task_cubit.dart';
-import '../../features/tasks/presentation/pages/home_screen.dart';
+import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/tasks/presentation/pages/tasks_screen.dart';
 
 class AppRouter {

@@ -1,5 +1,5 @@
-import '../../domain/dtos/project_dtos.dart';
-import '../../domain/entities/task.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
+import '../../../../core/domain/entities/task.dart';
 
 abstract class DetailState {
   DetailState();

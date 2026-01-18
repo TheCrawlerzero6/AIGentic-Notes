@@ -1,15 +1,14 @@
-import 'package:mi_agenda/features/tasks/data/models/project_model.dart';
+import 'package:mi_agenda/core/data/models/project_model.dart';
+import 'package:mi_agenda/core/data/models/task_model.dart';
 
 import '../datasources/project_local_datasource.dart';
-import '../../domain/dtos/project_dtos.dart';
-import '../../domain/repositories/project_repository.dart';
-import '../datasources/task_local_datasource.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
+import '../../../../core/domain/repositories/project_repository.dart';
 
 class ProjectRepository extends IProjectRepository {
   final ProjectLocalDatasource dataSource;
-  final TaskLocalDatasource tasksDataSource;
 
-  ProjectRepository({required this.dataSource, required this.tasksDataSource});
+  ProjectRepository({required this.dataSource});
 
   @override
   Future<int> createProject(CreateProjectDto data) async {
@@ -35,7 +34,7 @@ class ProjectRepository extends IProjectRepository {
   Future<DetailedProjectDto?> getProjectDetail(int id) async {
     final project = await dataSource.getDetail(id);
 
-    final tasks = await tasksDataSource.getAllByProjectId(project.id!);
+    final tasks = await dataSource.getTasksByProjectId(project.id!);
     final result = DetailedProjectDto(
       id: project.id!,
       title: project.title,
@@ -56,7 +55,7 @@ class ProjectRepository extends IProjectRepository {
     List<DetailedProjectDto> resultsList = [];
 
     for (final project in projects) {
-      final tasks = await tasksDataSource.getAllByProjectId(project.id!);
+      final tasks = await dataSource.getTasksByProjectId(project.id!);
       final result = DetailedProjectDto(
         id: project.id!,
         title: project.title,
@@ -87,5 +86,10 @@ class ProjectRepository extends IProjectRepository {
         updatedAt: data.updatedAt,
       ),
     );
+  }
+
+  @override
+  Future<List<TaskModel>> getTasksByProjectId(int projectId) async {
+    return await dataSource.getTasksByProjectId(projectId);
   }
 }

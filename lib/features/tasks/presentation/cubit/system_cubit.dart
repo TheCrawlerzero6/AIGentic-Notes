@@ -2,8 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/system_state.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart';
-import '../../domain/repositories/project_repository.dart';
-import '../../domain/repositories/task_repository.dart';
+import '../../../../core/domain/repositories/project_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
 
 class SystemCubit extends Cubit<SystemState> {
   final ITaskRepository repository;

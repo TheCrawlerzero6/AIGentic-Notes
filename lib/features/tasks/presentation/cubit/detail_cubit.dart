@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mi_agenda/features/tasks/presentation/cubit/detail_state.dart';
+import '../../presentation/cubit/detail_state.dart';
 
-import '../../domain/dtos/task_dtos.dart';
-import '../../domain/entities/task.dart';
-import '../../domain/repositories/project_repository.dart';
-import '../../domain/repositories/task_repository.dart';
+import '../../../../core/domain/dtos/task_dtos.dart';
+import '../../../../core/domain/entities/task.dart';
+import '../../../../core/domain/repositories/project_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
 
 class DetailCubit extends Cubit<DetailState> {
   final ITaskRepository repository;

@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants.dart';
-import '../../../../core/services/sqlite_service.dart';
+import '../../../../core/data/services/sqlite_service.dart';
 import '../models/user_model.dart';
 
 class AuthLocalDatasource {

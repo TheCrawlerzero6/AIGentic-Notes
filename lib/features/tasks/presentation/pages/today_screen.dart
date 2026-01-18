@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/system_cubit.dart';
 import 'package:mi_agenda/features/tasks/presentation/cubit/system_state.dart';
-import '../../domain/entities/task.dart';
+import '../../../../core/domain/entities/task.dart';
 import '../widgets/task_item_tile.dart';
 import '../widgets/task_placeholder_line.dart';
 

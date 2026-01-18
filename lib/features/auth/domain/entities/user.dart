@@ -1,4 +1,4 @@
-import '../../../../core/entities/base.dart';
+import '../../../../core/domain/entities/base.dart';
 
 abstract class User extends Entity {
   final String? username;

@@ -18,9 +18,7 @@ class _WIPScreenState extends State<WIPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.black,
         automaticallyImplyLeading: false, // Quitar botón atrás
         title: const Text(
           'Pantalla en Proceso',

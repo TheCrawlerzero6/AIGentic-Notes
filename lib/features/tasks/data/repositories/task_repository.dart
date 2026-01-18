@@ -1,8 +1,8 @@
-import 'package:mi_agenda/features/tasks/data/models/task_model.dart';
-import 'package:mi_agenda/features/tasks/domain/dtos/task_dtos.dart';
-import 'package:mi_agenda/features/tasks/domain/entities/task.dart';
+import 'package:mi_agenda/core/data/models/task_model.dart';
+import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
+import 'package:mi_agenda/core/domain/entities/task.dart';
 
-import '../../domain/repositories/task_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
 import '../datasources/task_local_datasource.dart';
 
 class TaskRepository extends ITaskRepository {

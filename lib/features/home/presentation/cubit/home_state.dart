@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/dtos/project_dtos.dart';
-import '../../domain/entities/system_project.dart';
+import '../../../../core/domain/dtos/project_dtos.dart';
+import '../../../../core/domain/entities/system_project.dart';
 
 
 abstract class HomeState {

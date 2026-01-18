@@ -1,8 +1,8 @@
 import 'dart:typed_data';
-import 'package:mi_agenda/features/tasks/domain/dtos/project_dtos.dart';
+import 'package:mi_agenda/core/domain/dtos/project_dtos.dart';
 
-import '../entities/task.dart';
-import '../entities/distribution_result.dart';
+import '../../../../core/domain/entities/task.dart';
+import '../../../../core/domain/entities/distribution_result.dart';
 
 /// Tipos de contenido soportados por el servicio de IA
 enum ContentType {

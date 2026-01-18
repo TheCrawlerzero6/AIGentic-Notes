@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../../../../core/datasources/base_local_datasource.dart';
-import '../models/task_model.dart';
+import '../../../../core/data/datasources/base_local_datasource.dart';
+import '../../../../core/data/models/task_model.dart';
 import '../../../../core/constants.dart';
 
 class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {

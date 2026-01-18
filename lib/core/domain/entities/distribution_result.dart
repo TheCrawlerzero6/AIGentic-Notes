@@ -1,4 +1,4 @@
-import '../dtos/distribution_dtos.dart';
+import '../../../../core/domain/dtos/distribution_dtos.dart';
 
 class DistributionResult {
   final List<ProjectDistribution> existingProjectDistributions;

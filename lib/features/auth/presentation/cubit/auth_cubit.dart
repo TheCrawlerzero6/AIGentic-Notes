@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:mi_agenda/features/auth/domain/usecases/register_usercase.dart';
-import 'package:mi_agenda/features/tasks/domain/repositories/task_repository.dart';
+import 'package:mi_agenda/core/domain/repositories/task_repository.dart';
 
 import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';

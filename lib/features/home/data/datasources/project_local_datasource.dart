@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../../../../core/datasources/base_local_datasource.dart';
-import '../models/project_model.dart';
+import 'package:mi_agenda/core/data/models/task_model.dart';
+import '../../../../core/data/datasources/base_local_datasource.dart';
+import '../../../../core/data/models/project_model.dart';
 import '../../../../core/constants.dart';
 
 class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
@@ -17,6 +18,15 @@ class ProjectLocalDatasource extends BaseLocalDataSource<ProjectModel> {
   Future<List<ProjectModel>> getAll() async {
     final records = await db.getAllRecords(tableName: tableName);
     return records.map((map) => ProjectModel.fromMap(map)).toList();
+  }
+
+  Future<List<TaskModel>> getTasksByProjectId(int projectId) async {
+    final records = await db.getAllRecords(
+      tableName: Constants.tableTasks,
+      whereClause: "projectId = ?",
+      whereArgs: [projectId],
+    );
+    return records.map((map) => TaskModel.fromMap(map)).toList();
   }
 
   @override

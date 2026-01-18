@@ -1,4 +1,4 @@
-import '../../domain/dtos/task_dtos.dart';
+import '../dtos/task_dtos.dart';
 
 import '../entities/task.dart';
 

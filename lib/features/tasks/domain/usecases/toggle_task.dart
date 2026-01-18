@@ -1,4 +1,4 @@
-import '../repositories/task_repository.dart';
+import '../../../../core/domain/repositories/task_repository.dart';
 
 class ToggleTask {
   final ITaskRepository repository;
