@@ -108,4 +108,9 @@ class TaskRepository extends ITaskRepository {
       ),
     );
   }
+
+  @override
+  Future<int> deleteProjectAndTasks(int projectId) async {
+    return await dataSource.deleteProjectAndTasks(projectId);
+  }
 }

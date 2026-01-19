@@ -51,6 +51,19 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
     }
   }
 
+  Future<int> deleteProjectAndTasks(int projectId) async {
+    final datab = await db.database;
+    await datab.rawDelete(
+      'DELETE FROM ${Constants.tableTasks} WHERE projectId = ?',
+      [projectId],
+    );
+    final delProject = await datab.rawDelete(
+      'DELETE FROM ${Constants.tableProjects} WHERE id = ?',
+      [projectId],
+    );
+    return delProject;
+  }
+
   @override
   Future<int> delete(int id) async {
     final deletedId = await db.deleteRegistry(tableName: tableName, id: id);

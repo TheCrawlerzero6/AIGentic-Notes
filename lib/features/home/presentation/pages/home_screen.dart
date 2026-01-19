@@ -20,7 +20,18 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
+  @override
+  void initState() {
+    super.initState();
+    context.read<HomeCubit>().listProjects();
+  }
+
+  @override
+  void didPopNext() {
+    context.read<HomeCubit>().listProjects();
+  }
+
   void _showAudioRecorder() {
     showModalBottomSheet(
       context: context,
@@ -156,7 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   else if (state is HomeError)
                     Center(child: Text(state.message))
                   else
-                    Center(child: Text("No se han creado proyectos aún")),
+                    Expanded(
+                      child: Center(
+                        child: Text("No se han creado proyectos aún"),
+                      ),
+                    ),
 
                   ListTile(
                     minTileHeight: 56,

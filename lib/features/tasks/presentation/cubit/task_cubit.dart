@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mi_agenda/core/domain/dtos/project_dtos.dart';
 
@@ -55,6 +56,14 @@ class TaskCubit extends Cubit<TaskState> {
     } catch (e) {
       emit(TaskError(message: e.toString()));
       rethrow;
+    }
+  }
+
+  Future<void> deleteProject(VoidCallback onDeleted) async {
+    if (state is TaskSuccess) {
+      final projectId = (state as TaskSuccess).selectedProject.id;
+      await repository.deleteProjectAndTasks(projectId);
+      onDeleted();
     }
   }
 

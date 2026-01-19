@@ -14,5 +14,6 @@ abstract class ITaskRepository {
   Future<int> deleteTask(int id);
 
   Future<int> toggleTaskComplete(int id);
+  Future<int> deleteProjectAndTasks(int projectId);
   Future<int> deleteMassiveOldTasks(int id);
 }

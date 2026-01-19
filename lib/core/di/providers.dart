@@ -14,7 +14,6 @@ import 'package:mi_agenda/core/domain/repositories/task_repository.dart';
 import 'package:mi_agenda/features/home/domain/usecases/process_ai_audio.dart';
 import 'package:mi_agenda/features/home/domain/usecases/process_ai_image.dart';
 import 'package:mi_agenda/features/home/domain/usecases/process_ai_distribution.dart';
-import 'package:mi_agenda/features/home/presentation/cubit/home_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,14 +91,5 @@ final localProviders = [
       taskRepository: context.read<ITaskRepository>(),
       projectRepository: context.read<IProjectRepository>(),
     ),
-  ),
-  BlocProvider(
-    create: (context) => HomeCubit(
-      repository: context.read<IProjectRepository>(),
-      authCubit: context.read<AuthCubit>(),
-      processImageUseCase: context.read<ProcessAiImageUseCase>(),
-      processAudioUseCase: context.read<ProcessAiAudioUseCase>(),
-      processDistributionUseCase: context.read<ProcessAiDistributionUseCase>(),
-    )..listProjects(),
   ),
 ];
