@@ -60,34 +60,30 @@ class TaskItemTile extends StatelessWidget {
                     ),
                   ],
                 ),
-              if ((task.description ?? "").isNotEmpty)
+              if ((task.description ?? "").isNotEmpty ||
+                  (task.notificationId) != null)
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
 
                   children: [
-                    Icon(
-                      Icons.list_alt,
-                      size: 12,
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodyLarge!.color!.withAlpha(120),
-                    ),
-                    Icon(
-                      Icons.notifications,
-                      size: 12,
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodyLarge!.color!.withAlpha(120),
-                    ),
-                    Icon(
-                      Icons.loop,
-                      size: 12,
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodyLarge!.color!.withAlpha(120),
-                    ),
+                    if ((task.description ?? "").isNotEmpty)
+                      Icon(
+                        Icons.list_alt,
+                        size: 12,
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge!.color!.withAlpha(120),
+                      ),
+                    if (task.notificationId != null)
+                      Icon(
+                        Icons.notifications,
+                        size: 12,
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge!.color!.withAlpha(120),
+                      ),
                   ].separatedBy(dot(context)),
                 ),
             ],
