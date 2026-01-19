@@ -16,7 +16,7 @@ class ProjectModel extends Project {
     return ProjectModel(
       id: map['id'] as int,
       title: map['title'] as String,
-      description: map['description'] as String,
+      description: map['description'] as String? ?? '',
       icon: map['icon'] as String,
       themeColor: map['themeColor'] as String,
 

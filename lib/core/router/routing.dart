@@ -36,6 +36,7 @@ class AppRouter {
         final isAuthenticated = authState is AuthAuthenticated;
 
         if (!isAuthenticated && state.uri.toString() == '/home') {
+          
           return '/login';
         }
 
