@@ -44,17 +44,17 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              size: 28,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            tooltip: 'Búsqueda',
-            onPressed: () {
-              context.push("/search");
-            },
-          ),
+          // IconButton(
+          //   icon: Icon(
+          //     Icons.search,
+          //     size: 28,
+          //     color: Theme.of(context).colorScheme.primary,
+          //   ),
+          //   tooltip: 'Búsqueda',
+          //   onPressed: () {
+          //     context.push("/search");
+          //   },
+          // ),
         ],
       ),
       actions: [
