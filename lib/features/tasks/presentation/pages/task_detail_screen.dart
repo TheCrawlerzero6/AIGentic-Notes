@@ -359,15 +359,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                           color: Colors.red,
                                         ),
                                         onPressed: () async {
-                                          Future.wait([
-                                            context
-                                                .read<DetailCubit>()
-                                                .deleteTask(),
-                                          ]);
-                                          context.pop();
-                                          context.pushReplacement(
-                                            "/projects/${(state).selectedProject.id}",
-                                          );
+                                          final toDeleteId =
+                                              state.selectedProject.id;
+                                          await context
+                                              .read<DetailCubit>()
+                                              .deleteTask();
+                                          if (mounted && context.mounted) {
+                                            context.pop();
+                                            context.pushReplacement(
+                                              "/projects/$toDeleteId",
+                                            );
+                                          }
                                         },
                                       ),
                                     ],
