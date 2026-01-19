@@ -63,7 +63,6 @@ final localProviders = [
   Provider<ITaskRepository>(
     create: (context) => TaskRepository(
       dataSource: context.read<TaskLocalDatasource>(),
-      notificationService: context.read<NotificationService>(),
     ),
   ),
 
@@ -99,10 +98,12 @@ final localProviders = [
   BlocProvider(
     create: (context) => HomeCubit(
       repository: context.read<IProjectRepository>(),
+      taskRepository: context.read<ITaskRepository>(),
       authCubit: context.read<AuthCubit>(),
       processImageUseCase: context.read<ProcessAiImageUseCase>(),
       processAudioUseCase: context.read<ProcessAiAudioUseCase>(),
       processDistributionUseCase: context.read<ProcessAiDistributionUseCase>(),
+      notificationService: context.read<NotificationService>(),
     )..listProjects(),
   ),
 ];

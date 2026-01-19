@@ -27,6 +27,7 @@ dependencies:
 
   flutter_local_notifications: ^18.0.0  # Notificaciones programadas
   timezone: ^0.9.0                   # Para programar notificaciones con zona horaria
+  flutter_timezone: ^3.0.0           # Detección automática de zona horaria del dispositivo
 
   crypto: ^3.0.3                     # Hash de contraseñas (SHA-256)
 

@@ -423,7 +423,7 @@ class AiService implements IAiService {
             title: taskJson['title'] as String,
             description: taskJson['description'] as String? ?? '',
             dueDate: dueDateString?.isNotEmpty ?? false
-                ? DateTime.parse(dueDateString!)
+                ? _parseAiDateAsLocal(dueDateString!)
                 : DateTime.now(),
             isCompleted: false,
             projectId: projectId,
@@ -517,7 +517,7 @@ class AiService implements IAiService {
             title: taskJson['title'] as String,
             description: taskJson['description'] as String? ?? '',
             dueDate: dueDateString?.isNotEmpty ?? false
-                ? DateTime.parse(dueDateString!)
+                ? _parseAiDateAsLocal(dueDateString!)
                 : DateTime.now(),
             isCompleted: false,
             projectId: projectId,
@@ -574,7 +574,7 @@ class AiService implements IAiService {
       title: taskJson['title'] as String? ?? '',
       description: taskJson['description'] as String? ?? '',
       dueDate: (dueDateString != null && dueDateString.isNotEmpty)
-          ? DateTime.parse(dueDateString)
+          ? _parseAiDateAsLocal(dueDateString)
           : null,
       isCompleted: false,
       projectId: projectId,
@@ -583,6 +583,16 @@ class AiService implements IAiService {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
+  }
+
+  /// Parsea fecha de respuesta IA como hora local
+  /// Gemini retorna fechas con "Z" (UTC) pero el usuario da horas locales,
+  /// asi que eliminamos el sufijo UTC y parseamos como local
+  DateTime _parseAiDateAsLocal(String dateStr) {
+    // Eliminar sufijo Z o offset para interpretar como hora local
+    String cleanDate = dateStr.replaceAll(RegExp(r'Z$'), '');
+    cleanDate = cleanDate.replaceAll(RegExp(r'[+-]\d{2}:\d{2}$'), '');
+    return DateTime.parse(cleanDate);
   }
 
   /// Extrae JSON de markdown fences si existe

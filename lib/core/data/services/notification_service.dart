@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 /// Servicio de notificaciones locales para alertas de tareas
 /// 
@@ -25,7 +26,16 @@ class NotificationService {
 
     // Inicializar zonas horarias
     tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('America/Lima')); // Ajusta según tu zona
+    
+    // Detectar zona horaria automáticamente del dispositivo
+    try {
+      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+      debugPrint('Zona horaria detectada: $currentTimeZone');
+    } catch (e) {
+      debugPrint('Error detectando zona horaria, usando UTC: $e');
+      tz.setLocalLocation(tz.UTC);
+    }
 
     // Configuración Android
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');

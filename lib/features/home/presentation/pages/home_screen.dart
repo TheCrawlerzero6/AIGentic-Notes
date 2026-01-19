@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       isScrollControlled: true,
       isDismissible: false, // No cerrar accidentalmente durante grabación
       enableDrag: false,
-      builder: (context) => AudioRecorderWidget(
+      builder: (modalContext) => AudioRecorderWidget(
         onAudioRecorded: (bytes) =>
             context.read<HomeCubit>().processWithAI(bytes, ContentType.audio),
       ),
@@ -105,11 +105,33 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => AIOptionsWidget(
-        onImageSelected: (bytes) =>
-            context.read<HomeCubit>().processWithAI(bytes, ContentType.image),
-        onAudioSelected: _showAudioRecorder,
-        onFileSelected: _showFilePlaceholder,
+      builder: (modalContext) => BlocListener<HomeCubit, HomeState>(
+        listener: (context, state) {
+          // Cerrar bottom sheet cuando comienza el procesamiento
+          if (state is HomeProcessingAI) {
+            Navigator.pop(context);
+          } else if (state is HomeSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Tareas creadas exitosamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state is HomeError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: AIOptionsWidget(
+          onImageSelected: (bytes) =>
+              context.read<HomeCubit>().processWithAI(bytes, ContentType.image),
+          onAudioSelected: _showAudioRecorder,
+          onFileSelected: _showFilePlaceholder,
+        ),
       ),
     );
   }
@@ -153,6 +175,39 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   Divider(),
                   if (state is HomeLoading)
                     Center(child: CircularProgressIndicator())
+                  else if (state is HomeProcessingAI)
+                    Expanded(
+                      child: Center(
+                        child: Card(
+                          margin: EdgeInsets.all(32),
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Procesando ${state.contentType}...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'La IA está extrayendo tareas',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
                   else if (state is HomeSuccess && state.projects.isNotEmpty)
                     Expanded(
                       child: ListView.builder(
@@ -195,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                       onPressed: _showAIOptions,
 
                       icon: Icon(
-                        Icons.cloud_download_outlined,
+                        Icons.auto_awesome,
                         size: 32,
                         color: Theme.of(context).colorScheme.primary,
                       ),

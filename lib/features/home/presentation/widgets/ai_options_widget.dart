@@ -30,6 +30,7 @@ class AIOptionsWidget extends StatelessWidget {
         final bytes = await photo.readAsBytes();
         final compressed = await _compressImage(bytes);
         if (context.mounted) {
+          // Cerrar el bottom sheet de opciones de imagen
           Navigator.pop(context);
           onImageSelected(compressed);
         }
@@ -58,6 +59,7 @@ class AIOptionsWidget extends StatelessWidget {
         final bytes = await image.readAsBytes();
         final compressed = await _compressImage(bytes);
         if (context.mounted) {
+          // Cerrar el bottom sheet de opciones de imagen
           Navigator.pop(context);
           onImageSelected(compressed);
         }

@@ -17,7 +17,7 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
         tableName: tableName,
         id: taskId,
         entity: {
-          'isCompleted': completed,
+          'is_completed': completed,
           'completedAt': completed ? DateTime.now().toIso8601String() : null,
         },
       );
@@ -49,19 +49,6 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
       debugPrint('Error al limpiar tareas: $e');
       rethrow;
     }
-  }
-
-  Future<int> deleteProjectAndTasks(int projectId) async {
-    final datab = await db.database;
-    await datab.rawDelete(
-      'DELETE FROM ${Constants.tableTasks} WHERE projectId = ?',
-      [projectId],
-    );
-    final delProject = await datab.rawDelete(
-      'DELETE FROM ${Constants.tableProjects} WHERE id = ?',
-      [projectId],
-    );
-    return delProject;
   }
 
   @override
@@ -129,5 +116,47 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
       return TaskModel.fromMap(record);
     }
     throw Exception("Task not found.");
+  }
+
+  /// OPTIMIZACIÓN: Inserta múltiples tareas en batch y retorna List<Task> con IDs
+  Future<List<TaskModel>> insertBatch(List<TaskModel> tasks) async {
+    if (tasks.isEmpty) return [];
+
+    final database = await db.database;
+    final List<TaskModel> createdTasks = [];
+
+    await database.transaction((txn) async {
+      for (var task in tasks) {
+        final id = await txn.insert(tableName, task.toMap());
+        createdTasks.add(task.copyWith(
+          id: id,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        ));
+      }
+    });
+
+    debugPrint('Batch insert: ${createdTasks.length} tareas creadas');
+    return createdTasks;
+  }
+
+  /// OPTIMIZACIÓN: Actualiza notificationId de múltiples tareas en 1 transacción
+  Future<void> batchUpdateNotificationIds(Map<int, int> taskIdToNotificationId) async {
+    if (taskIdToNotificationId.isEmpty) return;
+
+    final database = await db.database;
+    
+    await database.transaction((txn) async {
+      for (var entry in taskIdToNotificationId.entries) {
+        await txn.update(
+          tableName,
+          {'notificationId': entry.value},
+          where: 'id = ?',
+          whereArgs: [entry.key],
+        );
+      }
+    });
+
+    debugPrint('Batch update: ${taskIdToNotificationId.length} notificationIds actualizados');
   }
 }

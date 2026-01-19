@@ -5,6 +5,7 @@ import '../../../../core/domain/dtos/task_dtos.dart';
 import '../../../../core/domain/repositories/task_repository.dart';
 import '../../../../core/data/validators/task_validator.dart';
 import '../../../../core/data/helpers/task_datetime_calculator.dart';
+import '../../../../core/domain/entities/task.dart';
 
 class ProcessAiImageUseCase {
   final IAiService aiService;
@@ -15,7 +16,7 @@ class ProcessAiImageUseCase {
     required this.taskRepository,
   });
 
-  Future<int> call({
+  Future<List<Task>> call({
     required Uint8List imageBytes,
     required int projectId,
   }) async {
@@ -89,14 +90,14 @@ class ProcessAiImageUseCase {
 
     // Validación 6: Crear todas las tareas en una transacción atómica
     try {
-      final insertedCount = await taskRepository.createTasksBatch(tasksToCreate);
+      final createdTasks = await taskRepository.createTasksBatch(tasksToCreate);
       
       // Validación 7: Verificar que se insertaron todas las tareas
-      if (insertedCount != tasksToCreate.length) {
-        throw Exception('Error al crear algunas tareas. Se esperaban ${tasksToCreate.length}, se crearon $insertedCount.');
+      if (createdTasks.length != tasksToCreate.length) {
+        throw Exception('Error al crear algunas tareas. Se esperaban ${tasksToCreate.length}, se crearon ${createdTasks.length}.');
       }
 
-      return insertedCount;
+      return createdTasks; // Retornar tareas creadas con IDs
     } catch (e) {
       throw Exception('Error al guardar las tareas en la base de datos: ${e.toString()}');
     }

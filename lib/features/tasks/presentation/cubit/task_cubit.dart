@@ -6,17 +6,21 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../../core/domain/dtos/task_dtos.dart';
 import '../../../../core/domain/repositories/project_repository.dart';
 import '../../../../core/domain/repositories/task_repository.dart';
+import '../../../../core/data/services/notification_service.dart';
 import 'task_state.dart';
 
 class TaskCubit extends Cubit<TaskState> {
   final ITaskRepository repository;
   final IProjectRepository projectRepository;
   final AuthCubit authCubit;
+  final NotificationService notificationService;
   final int projectId;
+  
   TaskCubit({
     required this.repository,
     required this.projectRepository,
     required this.authCubit,
+    required this.notificationService,
     required this.projectId,
   }) : super(TaskInitial());
 
@@ -38,11 +42,26 @@ class TaskCubit extends Cubit<TaskState> {
         return;
       }
 
+      int? notificationId;
+      if (dueDate.isAfter(DateTime.now())) {
+        try {
+          notificationId = await notificationService.scheduleNotification(
+            title: 'Recordatorio: $title',
+            body: 'Tarea pendiente',
+            scheduledDate: dueDate,
+            payload: 'task_reminder',
+          );
+        } catch (e) {
+          debugPrint('Error al programar notificacion: $e');
+        }
+      }
+
       final task = CreateTaskDto(
         title: title,
         description: null,
         dueDate: dueDate,
         isCompleted: false,
+        notificationId: notificationId,
         sourceType: 'manual',
         priority: 2,
         projectId: projectId,
@@ -84,11 +103,43 @@ class TaskCubit extends Cubit<TaskState> {
   Future<void> toggleTask(int id) async {
     emit(TaskLoading());
     try {
+      final currentTask = await repository.getTaskDetail(id);
+      if (currentTask == null) {
+        throw Exception('Tarea no encontrada');
+      }
+
+      final willBeCompleted = !currentTask.isCompleted;
+
+      if (willBeCompleted && currentTask.notificationId != null) {
+        try {
+          await notificationService.cancelNotification(currentTask.notificationId!);
+        } catch (e) {
+          debugPrint('Error al cancelar notificacion: $e');
+        }
+      } else if (!willBeCompleted && currentTask.dueDate != null && currentTask.dueDate!.isAfter(DateTime.now())) {
+        try {
+          final newNotificationId = await notificationService.scheduleNotification(
+            title: 'Recordatorio: ${currentTask.title}',
+            body: currentTask.description ?? 'Tarea pendiente',
+            scheduledDate: currentTask.dueDate!,
+            payload: 'task_reminder',
+          );
+          
+          await repository.updateTask(id, UpdateTaskDto(
+            id: id,
+            notificationId: newNotificationId,
+            updatedAt: DateTime.now(),
+          ));
+        } catch (e) {
+          debugPrint('Error al reprogramar notificacion: $e');
+        }
+      }
+
       await repository.toggleTaskComplete(id);
       final tasks = await repository.listTasks(projectId);
       final project = await projectRepository.getProjectDetail(projectId);
       if (project == null) {
-        throw Exception("Project not found");
+        throw Exception('Proyecto no encontrado');
       }
       emit(TaskSuccess(tasks: tasks, selectedProject: project));
     } catch (e) {

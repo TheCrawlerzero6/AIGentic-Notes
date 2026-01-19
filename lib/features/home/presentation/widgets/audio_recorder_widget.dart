@@ -21,7 +21,6 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   final _audioRecorder = FlutterSoundRecorder();
 
   bool _isRecording = false;
-  bool _isProcessing = false;
   bool _isRecorderInitialized = false;
   int _secondsElapsed = 0;
   Timer? _timer;
@@ -135,7 +134,6 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
 
       setState(() {
         _isRecording = false;
-        _isProcessing = true;
       });
 
       if (_recordedFilePath == null) {
@@ -163,14 +161,14 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
         debugPrint('🗑️ Archivo temporal eliminado');
       }
 
-      // Llamar callback (el padre maneja el cierre del bottom sheet)
+      // Cerrar bottom sheet y llamar callback
       if (mounted) {
-        widget.onAudioRecorded(audioBytes);
+        Navigator.pop(context); // Cerrar primero
+        widget.onAudioRecorded(audioBytes); // Luego procesar
       }
     } catch (e) {
       debugPrint('Error deteniendo grabación: $e');
       if (mounted) {
-        setState(() => _isProcessing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll('Exception: ', '')),
@@ -229,15 +227,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
             ),
           ),
 
-          if (_isProcessing) ...[
-            // Estado: Procesando
-            const CircularProgressIndicator(),
-            const SizedBox(height: 24),
-            const Text(
-              'Procesando audio...',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-          ] else if (_isRecording) ...[
+          if (_isRecording) ...[
             // Estado: Grabando
             _buildRecordingUI(),
           ] else ...[

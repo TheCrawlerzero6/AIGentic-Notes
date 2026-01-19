@@ -16,6 +16,7 @@ import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../domain/repositories/task_repository.dart';
+import '../data/services/notification_service.dart';
 import '../../features/tasks/presentation/cubit/system_cubit.dart';
 import '../../features/tasks/presentation/cubit/task_cubit.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -58,6 +59,7 @@ class AppRouter {
                 repository: context.read<ITaskRepository>(),
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
+                notificationService: context.read<NotificationService>(),
               )..listTasks(),
               child: TodayScreen(),
             );
@@ -71,6 +73,7 @@ class AppRouter {
                 repository: context.read<ITaskRepository>(),
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
+                notificationService: context.read<NotificationService>(),
               )..listTasks(),
               child: AgendaScreen(),
             );
@@ -86,6 +89,7 @@ class AppRouter {
                 repository: context.read<ITaskRepository>(),
                 projectRepository: context.read<IProjectRepository>(),
                 authCubit: context.read<AuthCubit>(),
+                notificationService: context.read<NotificationService>(),
                 projectId: projectId,
               )..listTasks(),
               child: TasksScreen(projectId: projectId),

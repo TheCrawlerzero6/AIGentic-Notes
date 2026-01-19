@@ -44,8 +44,8 @@ class TaskModel extends Task {
       'title': title,
       'description': description,
       'dueDate': dueDate?.toIso8601String(),
-      'isCompleted': isCompleted,
-      'completedAt': completedAt,
+      'isCompleted': isCompleted ? 1 : 0, // SQLite solo acepta INTEGER para booleanos
+      'completedAt': completedAt?.toIso8601String(),
       'notificationId': notificationId,
       'sourceType': sourceType,
       'priority': priority,

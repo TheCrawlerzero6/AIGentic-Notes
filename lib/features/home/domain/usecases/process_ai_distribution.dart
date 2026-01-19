@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/domain/dtos/distribution_execution_result.dart';
 import '../../../../core/domain/dtos/project_dtos.dart';
 import '../../../../core/domain/dtos/task_dtos.dart';
@@ -8,6 +10,7 @@ import '../repositories/i_ai_service.dart';
 import '../../../../core/domain/repositories/project_repository.dart';
 import '../../../../core/domain/repositories/task_repository.dart';
 import '../../../../core/data/validators/task_validator.dart';
+import '../../../../core/domain/entities/task.dart';
 
 class ProcessAiDistributionUseCase {
   final IAiService aiService;
@@ -49,6 +52,7 @@ class ProcessAiDistributionUseCase {
 
     var tasksCreated = 0;
     var projectsCreated = 0;
+    final List<Task> allCreatedTasks = []; // OPTIMIZACIÓN: Acumular todas las tareas
 
     // Tareas para proyectos existentes
     for (final dist in distribution.existingProjectDistributions) {
@@ -86,7 +90,9 @@ class ProcessAiDistributionUseCase {
       }
 
       if (tasksToCreate.isNotEmpty) {
-        tasksCreated += await taskRepository.createTasksBatch(tasksToCreate);
+        final createdTasks = await taskRepository.createTasksBatch(tasksToCreate);
+        tasksCreated += createdTasks.length;
+        allCreatedTasks.addAll(createdTasks); // Acumular tareas
       }
     }
 
@@ -140,14 +146,20 @@ class ProcessAiDistributionUseCase {
       }
 
       if (tasksToCreate.isNotEmpty) {
-        tasksCreated += await taskRepository.createTasksBatch(tasksToCreate);
+        final createdTasks = await taskRepository.createTasksBatch(tasksToCreate);
+        debugPrint('[DIAGNÓSTICO] UseCase: Proyectos nuevos - ${createdTasks.length} tareas creadas');
+        tasksCreated += createdTasks.length;
+        allCreatedTasks.addAll(createdTasks); // Acumular tareas
+        debugPrint('[DIAGNÓSTICO] UseCase: Total acumulado final = ${allCreatedTasks.length}');
       }
     }
 
+    debugPrint('[DIAGNÓSTICO] UseCase: Retornando DistributionExecutionResult con ${allCreatedTasks.length} tareas');
     return DistributionExecutionResult(
       tasksCreated: tasksCreated,
       projectsCreated: projectsCreated,
       distribution: distribution,
+      createdTasks: allCreatedTasks, // Retornar todas las tareas creadas
     );
   }
 

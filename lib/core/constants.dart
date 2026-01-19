@@ -46,247 +46,148 @@ class Constants {
   static const String AUDIO_MIME_TYPE =
       'audio/aac'; // AAC = mejor compresión para móvil
 
+  static String _getDayOfWeek(int weekday) {
+    const days = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+    return days[weekday - 1];
+  }
+
   static String getImagePrompt([String? projectsContext]) {
     final now = DateTime.now();
     final today = now.toIso8601String().split('T')[0];
+    final nowWithOffset = '${now.toIso8601String().split('.')[0]}${now.timeZoneOffset.isNegative ? '-' : '+'}${now.timeZoneOffset.inHours.abs().toString().padLeft(2, '0')}:${(now.timeZoneOffset.inMinutes.abs() % 60).toString().padLeft(2, '0')}';
     final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final dayOfWeek = _getDayOfWeek(now.weekday);
 
     if (projectsContext != null && INTELLIGENT_DISTRIBUTION) {
-      return '''Eres un asistente experto en organización de tareas.
+      return '''Extrae tareas de la imagen y clasifícalas en proyectos.
 
 $projectsContext
 
-FECHA ACTUAL: $today
-HORA ACTUAL: $currentTime
+REFERENCIA TEMPORAL: Ahora=$nowWithOffset ($dayOfWeek) | Hora=$currentTime
+IMPORTANTE: Retorna todas las fechas en formato ISO8601 usando el MISMO offset de zona horaria que "Ahora"
 
-TU TAREA: Analizar la imagen, extraer todas las tareas, y clasificar cada una en el proyecto MÁS RELEVANTE.
-
-EJEMPLOS DE CLASIFICACIÓN CORRECTA:
-1. Tarea: "Comprar leche" | Proyectos: [Trabajo, Gimnasio] → Crear proyecto "Compras"
-2. Tarea: "Enviar reporte" | Proyectos: [Trabajo, Personal] → Asignar a "Trabajo"
-3. Tarea: "Hacer cardio" | Proyectos: [Trabajo, Gimnasio] → Asignar a "Gimnasio"
-4. Tarea: "Pagar impuestos" | Proyectos: [Trabajo, Personal] → Asignar a "Personal"
-5. Tarea: "Comprar manzanas, pan, leche" → Crear UN proyecto "Compras" con 3 tareas
-
-Devuelve un JSON con esta estructura:
+ESTRUCTURA JSON:
 {
-  "task_distributions": [
-    {
-      "project_id": 1,
-      "tasks": [
-        {
-          "title": "Título de la tarea",
-          "description": "Descripción (opcional)",
-          "due_date": "2026-01-15T14:30:00" o null,
-          "priority": 1, 2 o 3
-        }
-      ]
-    }
-  ],
-  "new_projects": [
-    {
-      "title": "Nombre del proyecto",
-      "tasks": [...]
-    }
-  ]
+  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}],
+  "new_projects": [{"title": "...", "tasks": [...]}]
 }
 
-Reglas OBLIGATORIAS de fecha/hora:
-- "hoy" / "hoy mismo" → $today con la hora mencionada o null si no hay hora
-- "mañana" → día siguiente a $today con la hora mencionada o null si no hay hora
-- "pasado mañana" → dos días después de $today con la hora o null
-- Si NO menciona fecha → usa null
-- Si menciona fecha pero NO hora → usa "YYYY-MM-DDT00:00:00"
-- Si menciona fecha Y hora → usa "YYYY-MM-DDTHH:MM:SS"
-- Formato SIEMPRE: "YYYY-MM-DDTHH:MM:SS" o null
+FECHAS/HORAS:
+- "hoy" → $today + hora mencionada (o null)
+- "mañana" → +1 día + hora (o null)
+- "lunes", "martes", "miércoles", etc. → Próximo día de esa semana desde hoy ($dayOfWeek)
+- Sin fecha → null
+- Fecha sin hora → "YYYY-MM-DDT00:00:00"
+- Fecha+hora → "YYYY-MM-DDTHH:MM:SS"
 
-CRITERIO DE RELEVANCIA:
-- Si la tarea menciona el dominio del proyecto, asignar ahí
-- Si la tarea es genérica, evaluar contexto del usuario
-- PRIORIZA asignar a proyectos existentes (incluso si no es match perfecto)
-- Solo crear nuevo proyecto si la tarea NO encaja en NINGUNO de los existentes
+REGLA CRÍTICA:
+- Extrae TODAS las tareas sin excepción, no omitas ninguna
+- Cada tarea mantiene su PROPIA fecha, NO las mezcles
+- Si hay 5 tareas con fechas diferentes, retorna las 5 con sus fechas respectivas
 
-REGLA CRÍTICA: Solo crea UN nuevo proyecto si NINGUNO de los existentes es adecuado.
-Si varias tareas similares no encajan, agrúpalas en UN SOLO proyecto nuevo.
-NO crear proyectos individuales por tarea.
+PRIORIDAD: "urgente/importante/crítico"=3 | "cuando puedas/sin prisa"=1 | default=2
 
-Extraer TODAS las tareas encontradas en la imagen.''';
+CLASIFICACIÓN (IMPORTANTE - Analiza el CONTEXTO real de cada tarea):
+- "Comprar pan/leche/supermercado" → NUEVO proyecto "Compras" (NO es Personal)
+- "Ejercicio/gym/correr" → NUEVO proyecto "Fitness" (NO es Personal)
+- "Estudiar/examen/universidad" → NUEVO proyecto "Estudios" (NO es Personal)
+- "Reunión/email/reporte" → Busca proyecto "Trabajo" o similar existente
+- "Pagar/trámite/documentos" → Proyecto "Personal" SÍ aplica aquí
+
+REGLA: NO pongas TODAS las tareas en el MISMO proyecto por defecto.
+Analiza el TEMA de cada tarea y crea proyectos específicos cuando sea necesario.
+Si 3 tareas son de compras, 2 de gym y 1 personal → Crea 3 distribuciones diferentes.''';
     } else if (MULTI_TASK_CREATION) {
-      return '''Analiza esta imagen y extrae TODAS las tareas, recordatorios o eventos visibles.
+      return '''Extrae TODAS las tareas de la imagen sin omitir ninguna.
 
-FECHA ACTUAL: $today
-HORA ACTUAL: $currentTime
+REFERENCIA TEMPORAL: Ahora=$nowWithOffset ($dayOfWeek) | Hora=$currentTime
+IMPORTANTE: Retorna todas las fechas en formato ISO8601 usando el MISMO offset de zona horaria que "Ahora"
 
-Devuelve un array JSON con esta estructura exacta:
+JSON:
 {
-  "tasks": [
-    {
-      "title": "Título corto de la tarea",
-      "description": "Descripción detallada (opcional)",
-      "due_date": "2026-01-15T14:30:00" o null,
-      "priority": 1, 2 o 3 (1=Baja, 2=Media, 3=Alta)
-    }
-  ]
+  "tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]
 }
 
-Reglas OBLIGATORIAS de fecha/hora:
-- "hoy" / "hoy mismo" → $today con la hora mencionada o null si no hay hora
-- "mañana" → día siguiente a $today con la hora mencionada o null si no hay hora
-- "pasado mañana" → dos días después de $today con la hora o null
-- Si NO menciona fecha → usa null
-- Si menciona fecha pero NO hora → usa "YYYY-MM-DDT00:00:00"
-- Si menciona fecha Y hora → usa "YYYY-MM-DDTHH:MM:SS"
-- Formato SIEMPRE: "YYYY-MM-DDTHH:MM:SS" o null
+FECHAS:
+- "hoy"→$today+hora | "mañana"→+1día+hora
+- "lunes", "martes", "miércoles", etc. → Próximo día desde $dayOfWeek
+- Sin fecha→null | Sin hora→"T00:00:00"
 
-Prioridad:
-- Palabras como "urgente", "importante", "crítico" → 3 (Alta)
-- Palabras como "cuando puedas", "sin prisa" → 1 (Baja)
-- Sin indicadores → 2 (Media)
-
-Extrae TODAS las tareas encontradas en la imagen.''';
+REGLA: Cada tarea conserva su PROPIA fecha, no las mezcles. Si hay 3 tareas, retorna las 3.
+PRIORIDAD: urgente=3 | sin prisa=1 | default=2''';
     } else {
-      return '''Analiza esta imagen y extrae SOLO LA PRIMERA tarea, recordatorio o evento visible.
+      return '''Extrae SOLO la PRIMERA tarea visible.
 
-FECHA ACTUAL: $today
-HORA ACTUAL: $currentTime
+REFERENCIA TEMPORAL: Ahora=$nowWithOffset
+IMPORTANTE: Retorna la fecha en formato ISO8601 usando el MISMO offset de zona horaria que "Ahora"
 
-Devuelve un array JSON con UN ÚNICO elemento:
-{
-  "tasks": [
-    {
-      "title": "Título corto de la tarea",
-      "description": "Descripción detallada (opcional)",
-      "due_date": "2026-01-15T14:30:00" o null,
-      "priority": 1, 2 o 3 (1=Baja, 2=Media, 3=Alta)
-    }
-  ]
-}
+JSON:
+{"tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}
 
-Reglas:
-- Extrae SOLO la primera tarea visible
-- Usa la FECHA ACTUAL ($today) para interpretar "hoy", "mañana", etc.
-- Si no hay fecha clara, usa null
-- Si hay fecha sin hora, usa "YYYY-MM-DDT00:00:00"
-- Infiere prioridad del contexto''';
+Fecha sin hora → "T00:00:00" | Sin fecha → null''';
     }
   }
 
   static String getAudioPrompt([String? projectsContext]) {
     final now = DateTime.now();
     final today = now.toIso8601String().split('T')[0];
+    final nowWithOffset = '${now.toIso8601String().split('.')[0]}${now.timeZoneOffset.isNegative ? '-' : '+'}${now.timeZoneOffset.inHours.abs().toString().padLeft(2, '0')}:${(now.timeZoneOffset.inMinutes.abs() % 60).toString().padLeft(2, '0')}';
+    final dayOfWeek = _getDayOfWeek(now.weekday);
 
     if (projectsContext != null && INTELLIGENT_DISTRIBUTION) {
-      return '''Eres un asistente experto en organización de tareas.
+      return '''Transcribe audio y clasifica TODAS las tareas mencionadas.
 
 $projectsContext
 
-FECHA ACTUAL: $today
+REFERENCIA TEMPORAL: Ahora=$nowWithOffset ($dayOfWeek)
 
-TU TAREA: Transcribir el audio, extraer todas las tareas y clasificarlas en el proyecto MÁS RELEVANTE.
+FORMATO DE FECHAS OBLIGATORIO:
+- USA el offset de zona horaria del "Ahora" de referencia
+- NUNCA uses "Z" (UTC) al final
+- Ejemplo CORRECTO: "2026-01-19T14:30:00-05:00"
+- Ejemplo INCORRECTO: "2026-01-19T14:30:00.000Z"
 
-EJEMPLOS DE CLASIFICACIÓN CORRECTA:
-1. "Enviar reporte" | Proyectos: [Trabajo, Personal] → "Trabajo"
-2. "Comprar leche" | Proyectos: [Trabajo, Gimnasio] → Crear "Compras"
-3. "Hacer cardio" | Proyectos: [Trabajo, Gimnasio] → "Gimnasio"
-4. "Pagar impuestos" | Proyectos: [Trabajo, Personal] → "Personal"
-5. "Comprar manzanas, pan, leche" → Crear UN proyecto "Compras" con 3 tareas
-
-Devuelve un JSON con esta estructura:
+JSON:
 {
-  "task_distributions": [
-    {
-      "project_id": 1,
-      "tasks": [
-        {
-          "title": "Título claro y conciso",
-          "description": "Transcripción completa + detalles",
-          "due_date": "YYYY-MM-DDTHH:MM:SS" o null,
-          "priority": 1 o 2 o 3
-        }
-      ]
-    }
-  ],
-  "new_projects": [
-    {
-      "title": "Nombre del proyecto",
-      "tasks": [...]
-    }
-  ]
+  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "Transcripción+detalles", "due_date": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}],
+  "new_projects": [{"title": "...", "tasks": [...]}]
 }
 
-Reglas OBLIGATORIAS de fecha/hora:
-- "mañana" → +1 día con la hora mencionada, si no hay hora usa null
-- "pasado mañana" → +2 días con la hora mencionada, si no hay hora usa null
-- "hoy" / "hoy mismo" → hoy con la hora mencionada, si no hay hora usa null
-- "esta tarde" → hoy a las 18:00
-- "esta noche" → hoy a las 21:00
-- SI NO MENCIONA FECHA → usa null
-- SI NO MENCIONA HORA → usa null
-- Formato SIEMPRE: "YYYY-MM-DDTHH:MM:SS" o null
+CÁLCULO DE FECHAS (usando hora local del usuario):
+- "hoy a las 3pm" → "$today" + "T15:00:00-05:00"
+- "mañana" → día siguiente + hora actual + "-05:00"
+- "tarde" → 18:00:00-05:00 | "noche" → 21:00:00-05:00
+- Sin hora específica → null
 
-Prioridad según tono/palabras:
-- "urgente", "importante", "ya", "rápido", "crítico" → priority: 3 (Alta)
-- "cuando puedas", "no urge", "tranquilo", "sin prisa" → priority: 1 (Baja)
-- Sin indicadores → priority: 2 (Media)
+REGLA CRÍTICA: NO omitas ninguna tarea mencionada. Cada tarea mantiene su fecha individual.
+PRIORIDAD: urgente/ya/rápido=3 | sin prisa=1 | default=2
 
-CRITERIO DE RELEVANCIA:
-- Si la tarea menciona el dominio del proyecto, asignar ahí
-- Si es genérica, evaluar contexto
-- PRIORIZA asignar a proyectos existentes incluso si el match no es perfecto
-- Solo crea nuevo proyecto si la tarea NO encaja en NINGUNO de los existentes
+CLASIFICACIÓN (Analiza el TEMA de cada tarea):
+- "Comprar pan/leche/supermercado" → NUEVO proyecto "Compras"
+- "Ejercicio/gym/correr" → NUEVO proyecto "Fitness"
+- "Estudiar/leer/tarea" → NUEVO proyecto "Estudios"
+- "Reunión/trabajo/email" → Busca proyecto existente relacionado con trabajo
 
-REGLA CRÍTICA: Solo crea UN nuevo proyecto si NINGUNO de los existentes es adecuado.
-Si varias tareas similares no encajan, agrúpalas en UN SOLO proyecto nuevo.
-NO crear proyectos individuales por tarea.
-''';
-    }
+NO asignes TODAS las tareas al mismo proyecto. Evalúa el contexto de cada una.''';    }
 
-    final baseInstructions =
-        '''
-        TRANSCRIBE el audio y extrae información para crear ${MULTI_TASK_CREATION ? 'tareas' : 'UNA tarea'}.
+    final mode = MULTI_TASK_CREATION ? 'TODAS las tareas sin omitir ninguna' : 'SOLO la PRIMERA tarea';
+    return '''Transcribe audio y extrae $mode.
 
-        FECHA ACTUAL: $today (úsala como referencia)
+REFERENCIA TEMPORAL: Ahora=$nowWithOffset ($dayOfWeek)
 
-        Reglas OBLIGATORIAS de fecha/hora:
-        - "mañana" → +1 día con la hora mencionada, si no hay hora usa null
-        - "pasado mañana" → +2 días con la hora mencionada, si no hay hora usa null
-        - "hoy" / "hoy mismo" → hoy con la hora mencionada, si no hay hora usa null
-        - "esta tarde" → hoy a las 18:00
-        - "esta noche" → hoy a las 21:00
-        - SI NO MENCIONA FECHA → usa null
-        - SI NO MENCIONA HORA → usa null
-        - Formato SIEMPRE: "YYYY-MM-DDTHH:MM:SS" o null
+⚠️ FORMATO DE FECHAS OBLIGATORIO:
+- USA el offset del "Ahora" de referencia (ejemplo: -05:00)
+- NUNCA termines con "Z"
+- Ejemplo CORRECTO: "2026-01-19T14:30:00-05:00"
+- Ejemplo INCORRECTO: "2026-01-19T14:30:00Z" ❌
 
-        Prioridad según tono/palabras:
-        - "urgente", "importante", "ya", "rápido", "crítico" → priority: 3 (Alta)
-        - "cuando puedas", "no urge", "tranquilo", "sin prisa" → priority: 1 (Baja)
-        - Sin indicadores → priority: 2 (Media)
+JSON:
+{"tasks": [{"title": "...", "description": "Transcripción completa", "due_date": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}
 
-        ESTRUCTURA JSON OBLIGATORIA:
-        {
-          "tasks": [
-            {
-              "title": "Título claro y conciso",
-              "description": "Transcripción completa del audio + detalles",
-              "due_date": "YYYY-MM-DDTHH:MM:SS",
-              "priority": 1 o 2 o 3
-            }
-          ]
-        }
-      ''';
+CÁLCULO DE FECHAS:
+- "mañana"→+1día+hora actual+offset | "tarde"→18:00:00+offset | Sin mención→null
 
-    if (MULTI_TASK_CREATION) {
-      return '''
-        $baseInstructions
-        IMPORTANTE: Extrae TODAS las tareas mencionadas en el audio.
-        Si el usuario dice "tengo 3 cosas: A, B y C", crea 3 tareas separadas.
-        ''';
-    } else {
-      return '''
-        $baseInstructions
-        IMPORTANTE: Extrae SOLO LA PRIMERA tarea mencionada en el audio.
-        Si menciona varias tareas, ignora las demás y procesa solo la primera.
-        ''';
-    }
+REGLA: Cada tarea con su propia fecha, no las mezcles.
+PRIORIDAD: urgente=3 | sin prisa=1 | default=2''';
   }
 }

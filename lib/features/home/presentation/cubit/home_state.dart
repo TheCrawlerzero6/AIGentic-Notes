@@ -41,3 +41,8 @@ class HomeError extends HomeState {
   final String message;
   HomeError({required this.message});
 }
+
+class HomeProcessingAI extends HomeState {
+  final String contentType; // 'image' o 'audio'
+  HomeProcessingAI({required this.contentType});
+}
