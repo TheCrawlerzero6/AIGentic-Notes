@@ -7,6 +7,7 @@ import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
 import '../../../../core/domain/entities/task.dart';
 import '../cubit/detail_cubit.dart';
 import '../cubit/detail_state.dart';
+import '../widgets/radio_checkbox.dart';
 import '../widgets/time_picker_spinner.dart';
 
 class TaskDetailScreen extends StatefulWidget {
@@ -122,7 +123,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      context.go("/projects/${task.projectId}");
+      context.pop();
+      context.pushReplacement("/projects/${task.projectId}");
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -160,172 +162,185 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   icon: const Icon(Icons.check, color: Colors.green),
                   onPressed: _saveChanges,
                 ),
-              if (state is DetailSuccess || state is DetailEdit)
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () async {
-                    Future.wait([context.read<DetailCubit>().deleteTask()]);
-                    context.go(
-                      "/projects/${(state as DetailSuccess).selectedProject.id}",
-                    );
-                  },
-                ),
             ],
           ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: (state is DetailSuccess || state is DetailEdit)
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sectionLabel('Título'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _titleCtrl,
-                          enabled: isEditing,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          decoration: _inputDecoration(),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        _sectionLabel('Descripción'),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _descCtrl,
-                          enabled: isEditing,
-                          maxLines: 4,
-                          decoration: _inputDecoration(),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        _sectionLabel('Fecha Límite'),
-                        const SizedBox(height: 8),
-                        InkWell(
-                          onTap: isEditing ? _pickDate : null,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
+          body: ColoredBox(
+            color: Theme.of(context).colorScheme.primary.withAlpha(60),
+            child: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: (state is DetailSuccess || state is DetailEdit)
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.calendar_today, size: 20),
-                                const SizedBox(width: 12),
-                                Text(
-                                  _selectedDate != null
-                                      ? DateFormat(
-                                          'dd/MM/yyyy',
-                                        ).format(_selectedDate!)
-                                      : "",
-                                  style: const TextStyle(fontSize: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _listItemEditable(
+                                      task:
+                                          (state as DetailSuccess).selectedTask,
+                                      isEditing: state is DetailEdit,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _detailCard(
+                                      editInput: _editInput(
+                                        icon: Icons.list_alt_outlined,
+                                        controller: _descCtrl!,
+                                        placeholder: "Añadir Descripción",
+                                        isEditing: isEditing,
+                                      ),
+                                    ),
+                                    _detailCard(
+                                      editInput: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                              right: 8,
+                                              top: 12,
+                                              bottom: 4,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _editDatePicker(
+                                                    icon: Icons.calendar_today,
+                                                    placeholder: "Fecha Límite",
+                                                    isEditing: isEditing,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: _editTimePicker(
+                                                    icon: Icons.access_time,
+                                                    placeholder: "Hora Límite",
+                                                    isEditing: isEditing,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0,
+                                            ),
+                                            child: Divider(),
+                                          ),
+                                          _editInput(
+                                            icon: Icons.notifications,
+                                            controller: TextEditingController(),
+                                            placeholder: "Recordármelo cada...",
+                                            isEditing: isEditing,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0,
+                                            ),
+                                            child: Divider(),
+                                          ),
+                                          _editInput(
+                                            icon: Icons.loop,
+                                            controller: TextEditingController(),
+                                            placeholder: "Repetir...",
+                                            isEditing: isEditing,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // const SizedBox(height: 20),
+                                    // _detailCard(
+                                    //   editInput: SegmentedButton<int>(
+                                    //     segments: const [
+                                    //       ButtonSegment(
+                                    //         value: 1,
+                                    //         label: Text('Baja'),
+                                    //         icon: Icon(Icons.arrow_downward),
+                                    //       ),
+                                    //       ButtonSegment(
+                                    //         value: 2,
+                                    //         label: Text('Media'),
+                                    //         icon: Icon(Icons.remove),
+                                    //       ),
+                                    //       ButtonSegment(
+                                    //         value: 3,
+                                    //         label: Text('Alta'),
+                                    //         icon: Icon(Icons.arrow_upward),
+                                    //       ),
+                                    //     ],
+                                    //     selected: {_priority},
+                                    //     onSelectionChanged: isEditing
+                                    //         ? (Set<int> selected) {
+                                    //             setState(
+                                    //               () => _priority = selected.first,
+                                    //             );
+                                    //           }
+                                    //         : null,
+                                    //   ),
+                                    // ),
+                                    // const SizedBox(height: 20),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
 
-                        const SizedBox(height: 20),
-
-                        _sectionLabel('Hora'),
-                        const SizedBox(height: 8),
-                        InkWell(
-                          onTap: isEditing ? _pickTime : null,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.access_time, size: 20),
-                                const SizedBox(width: 12),
-                                Text(
-                                  _selectedTime != null
-                                      ? MaterialLocalizations.of(
+                                ((state).selectedTask.completedAt != null)
+                                    ? Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                          vertical: 8,
+                                        ),
+                                        color: Theme.of(
                                           context,
-                                        ).formatTimeOfDay(
-                                          _selectedTime!,
-                                          alwaysUse24HourFormat: false,
-                                        )
-                                      : "",
-                                  style: const TextStyle(fontSize: 16),
-                                ),
+                                        ).appBarTheme.backgroundColor!,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+
+                                          children: [
+                                            Text(
+                                              'Completada: ${DateFormat('dd/MM/yyyy h:mm a').format((state).selectedTask.completedAt!)}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                size: 24,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () async {
+                                                Future.wait([
+                                                  context
+                                                      .read<DetailCubit>()
+                                                      .deleteTask(),
+                                                ]);
+                                                context.pop();
+                                                context.pushReplacement(
+                                                  "/projects/${(state).selectedProject.id}",
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : SizedBox(),
                               ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        _sectionLabel('Prioridad'),
-                        const SizedBox(height: 8),
-                        SegmentedButton<int>(
-                          segments: const [
-                            ButtonSegment(
-                              value: 1,
-                              label: Text('Baja'),
-                              icon: Icon(Icons.arrow_downward),
-                            ),
-                            ButtonSegment(
-                              value: 2,
-                              label: Text('Media'),
-                              icon: Icon(Icons.remove),
-                            ),
-                            ButtonSegment(
-                              value: 3,
-                              label: Text('Alta'),
-                              icon: Icon(Icons.arrow_upward),
-                            ),
-                          ],
-                          selected: {_priority},
-                          onSelectionChanged: isEditing
-                              ? (Set<int> selected) {
-                                  setState(() => _priority = selected.first);
-                                }
-                              : null,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        SwitchListTile(
-                          title: const Text('Tarea Completada'),
-                          value: _isCompleted,
-                          onChanged: isEditing
-                              ? (value) => setState(() => _isCompleted = value)
-                              : null,
-                          activeTrackColor: const Color(0xFF6750A4),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        if ((state as DetailSuccess).selectedTask.completedAt !=
-                            null)
-                          Text(
-                            'Completada: ${DateFormat('dd/MM/yyyy h:mm a').format((state).selectedTask.completedAt!)}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                      ],
-                    )
-                  : (state is DetailLoading)
-                  ? Center(child: CircularProgressIndicator())
-                  : Center(child: Text((state as DetailError).message)),
+                            )
+                          : (state is DetailLoading)
+                          ? Center(child: CircularProgressIndicator())
+                          : Center(child: Text((state as DetailError).message)),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -333,10 +348,154 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _sectionLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+  Widget _editTimePicker({
+    required IconData icon,
+    required String placeholder,
+    required bool isEditing,
+
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+
+      child: Row(
+        spacing: 16,
+        children: [
+          Icon(icon),
+          InkWell(
+            onTap: isEditing ? _pickTime : null,
+            child: SizedBox(
+              child: Text(
+                _selectedTime != null
+                    ? MaterialLocalizations.of(context).formatTimeOfDay(
+                        _selectedTime!,
+                        alwaysUse24HourFormat: false,
+                      )
+                    : placeholder,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _editDatePicker({
+    required IconData icon,
+    required String placeholder,
+    required bool isEditing,
+
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+
+      child: Row(
+        spacing: 16,
+        children: [
+          Icon(icon),
+          InkWell(
+            onTap: isEditing ? _pickDate : null,
+            child: SizedBox(
+              child: Text(
+                _selectedDate != null
+                    ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+                    : placeholder,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _editInput({
+    required IconData icon,
+    required TextEditingController controller,
+    required String placeholder,
+    required bool isEditing,
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Row(
+        spacing: 4,
+        children: [
+          Icon(icon),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              enabled: isEditing,
+              minLines: 1,
+              maxLines: 4,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge!.color,
+              ),
+              decoration: InputDecoration(
+                hintText: placeholder,
+                isDense: true,
+                border: const UnderlineInputBorder(),
+
+                hintStyle: TextStyle(color: Theme.of(context).hintColor),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailCard({required Widget editInput}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
+      child: SizedBox(
+        width: double.infinity,
+        child: Card(
+          elevation: 4,
+
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+          child: editInput,
+        ),
+      ),
+    );
+  }
+
+  Widget _listItemEditable({required Task task, required bool isEditing}) {
+    return Material(
+      color: Theme.of(context).appBarTheme.backgroundColor,
+      child: ListTile(
+        leading: RadioCheckbox(
+          value: _isCompleted,
+          color: Theme.of(context).textTheme.bodyLarge!.color!,
+          borderColor: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.color!.withAlpha(160),
+          onTap: () =>
+              isEditing ? setState(() => _isCompleted = !_isCompleted) : null,
+        ),
+        minTileHeight: 64,
+        title: TextField(
+          controller: _titleCtrl,
+          enabled: isEditing,
+
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.bodyLarge!.color,
+          ),
+          decoration: _inputDecoration(),
+        ),
+        subtitle: null,
+        trailing: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.favorite_outline),
+        ),
+      ),
     );
   }
 
@@ -344,6 +503,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return InputDecoration(
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      hintStyle: TextStyle(color: Theme.of(context).hintColor),
     );
   }
 }

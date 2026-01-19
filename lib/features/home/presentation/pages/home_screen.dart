@@ -246,6 +246,7 @@ Widget getMenuTile({
     ),
     trailing: Row(
       mainAxisSize: MainAxisSize.min,
+      spacing: 4,
       children: [
         Text(
           "${(progress * 100).toStringAsFixed(0)}%",

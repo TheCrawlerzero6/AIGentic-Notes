@@ -18,6 +18,7 @@ class CustomAppTheme {
   static const Color errorDark = Color(0xFFDC2626);
 
   static const BorderRadius borderRadius = BorderRadius.all(Radius.circular(8));
+  static BorderRadius cardRadius = BorderRadius.circular(2);
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
@@ -77,9 +78,10 @@ class CustomAppTheme {
         side: const BorderSide(color: primary),
       ),
     ),
-
+  
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
+      
       fillColor: surfaceDark,
       border: OutlineInputBorder(
         borderRadius: borderRadius,
@@ -103,7 +105,7 @@ class CustomAppTheme {
     cardTheme: CardThemeData(
       color: surfaceDark,
       elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      shape: RoundedRectangleBorder(borderRadius: cardRadius),
     ),
 
     dividerTheme: DividerThemeData(
@@ -216,7 +218,7 @@ class CustomAppTheme {
     cardTheme: CardThemeData(
       color: surface,
       elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      shape: RoundedRectangleBorder(borderRadius: cardRadius),
     ),
 
     dividerTheme: DividerThemeData(

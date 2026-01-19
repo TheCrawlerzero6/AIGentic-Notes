@@ -29,9 +29,15 @@ class TaskItemTile extends StatelessWidget {
           ),
           minTileHeight: 64,
           title: Text(task.title),
-          subtitle: task.dueDate != null
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
+          subtitle: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            spacing: 2,
+            children: [
+              if (task.dueDate != null)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 2,
                   children: [
@@ -53,8 +59,39 @@ class TaskItemTile extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
-              : null,
+                ),
+              if ((task.description ?? "").isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                  children: [
+                    Icon(
+                      Icons.list_alt,
+                      size: 12,
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge!.color!.withAlpha(120),
+                    ),
+                    Icon(
+                      Icons.notifications,
+                      size: 12,
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge!.color!.withAlpha(120),
+                    ),
+                    Icon(
+                      Icons.loop,
+                      size: 12,
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge!.color!.withAlpha(120),
+                    ),
+                  ].separatedBy(dot(context)),
+                ),
+            ],
+          ),
           // trailing: IconButton(
           //   onPressed: () => {},
           //   icon: Icon(Icons.favorite_outline),
@@ -65,5 +102,26 @@ class TaskItemTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Widget dot(BuildContext context) => Container(
+  width: 4,
+  height: 4,
+  margin: const EdgeInsets.symmetric(horizontal: 3),
+  decoration: BoxDecoration(
+    color: Theme.of(context).textTheme.bodyLarge!.color!.withAlpha(120),
+    shape: BoxShape.circle,
+  ),
+);
+
+extension SeparatedRow on List<Widget> {
+  List<Widget> separatedBy(Widget separator) {
+    final result = <Widget>[];
+    for (var i = 0; i < length; i++) {
+      if (i > 0) result.add(separator);
+      result.add(this[i]);
+    }
+    return result;
   }
 }
