@@ -331,50 +331,48 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                   ],
                                 ),
 
-                                ((state).selectedTask.completedAt != null)
-                                    ? Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0,
-                                          vertical: 8,
-                                        ),
-                                        color: Theme.of(
-                                          context,
-                                        ).appBarTheme.backgroundColor!,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8,
+                                  ),
+                                  color: Theme.of(
+                                    context,
+                                  ).appBarTheme.backgroundColor!,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
 
-                                          children: [
-                                            Text(
-                                              'Completada: ${DateFormat('dd/MM/yyyy h:mm a').format((state).selectedTask.completedAt!)}',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                size: 24,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed: () async {
-                                                Future.wait([
-                                                  context
-                                                      .read<DetailCubit>()
-                                                      .deleteTask(),
-                                                ]);
-                                                context.pop();
-                                                context.pushReplacement(
-                                                  "/projects/${(state).selectedProject.id}",
-                                                );
-                                              },
-                                            ),
-                                          ],
+                                    children: [
+                                      Text(
+                                        'Creado en: ${DateFormat('dd/MM/yyyy h:mm a').format((state).selectedTask.createdAt)}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
                                         ),
-                                      )
-                                    : SizedBox(),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          size: 24,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () async {
+                                          Future.wait([
+                                            context
+                                                .read<DetailCubit>()
+                                                .deleteTask(),
+                                          ]);
+                                          context.pop();
+                                          context.pushReplacement(
+                                            "/projects/${(state).selectedProject.id}",
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             )
                           : (state is DetailLoading)

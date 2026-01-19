@@ -60,7 +60,8 @@ class TaskItemTile extends StatelessWidget {
                     ),
                   ],
                 ),
-              if ((task.description ?? "").isNotEmpty ||
+              if (((task.description ?? "").isNotEmpty &&
+                      (task.description?.trim().length ?? 0) > 0) ||
                   (task.notificationId) != null)
                 Row(
                   mainAxisSize: MainAxisSize.max,
@@ -68,7 +69,8 @@ class TaskItemTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
 
                   children: [
-                    if ((task.description ?? "").isNotEmpty)
+                    if (((task.description ?? "").isNotEmpty &&
+                        (task.description?.trim().length ?? 0) > 0))
                       Icon(
                         Icons.list_alt,
                         size: 12,

@@ -79,8 +79,10 @@ class DetailCubit extends Cubit<DetailState> {
           selectedTask: DetailedTaskDto(
             id: task.id,
             title: task.title,
+            description: task.description,
             dueDate: task.dueDate,
             isCompleted: task.isCompleted,
+            completedAt: task.completedAt,
             notificationId: task.notificationId,
             notification: task.notification,
             sourceType: task.sourceType,
