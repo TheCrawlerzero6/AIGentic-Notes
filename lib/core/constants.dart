@@ -68,7 +68,7 @@ IMPORTANTE: Retorna todas las fechas en formato ISO8601 usando el MISMO offset d
 
 ESTRUCTURA JSON:
 {
-  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}],
+  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "...", "dueDate": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}],
   "new_projects": [{"title": "...", "tasks": [...]}]
 }
 
@@ -105,7 +105,7 @@ IMPORTANTE: Retorna todas las fechas en formato ISO8601 usando el MISMO offset d
 
 JSON:
 {
-  "tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]
+  "tasks": [{"title": "...", "description": "...", "dueDate": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]
 }
 
 FECHAS:
@@ -122,7 +122,7 @@ REFERENCIA TEMPORAL: Ahora=$nowWithOffset
 IMPORTANTE: Retorna la fecha en formato ISO8601 usando el MISMO offset de zona horaria que "Ahora"
 
 JSON:
-{"tasks": [{"title": "...", "description": "...", "due_date": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}
+{"tasks": [{"title": "...", "description": "...", "dueDate": "YYYY-MM-DDTHH:MM:SS-05:00" | null, "priority": 1-3}]}
 
 Fecha sin hora → "T00:00:00" | Sin fecha → null''';
     }
@@ -149,7 +149,7 @@ FORMATO DE FECHAS OBLIGATORIO:
 
 JSON:
 {
-  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "Transcripción+detalles", "due_date": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}],
+  "task_distributions": [{"project_id": 1, "tasks": [{"title": "...", "description": "Transcripción+detalles", "dueDate": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}],
   "new_projects": [{"title": "...", "tasks": [...]}]
 }
 
@@ -182,7 +182,7 @@ REFERENCIA TEMPORAL: Ahora=$nowWithOffset ($dayOfWeek)
 - Ejemplo INCORRECTO: "2026-01-19T14:30:00Z" ❌
 
 JSON:
-{"tasks": [{"title": "...", "description": "Transcripción completa", "due_date": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}
+{"tasks": [{"title": "...", "description": "Transcripción completa", "dueDate": "2026-01-19T14:30:00-05:00" | null, "priority": 1-3}]}
 
 CÁLCULO DE FECHAS:
 - "mañana"→+1día+hora actual+offset | "tarde"→18:00:00+offset | Sin mención→null

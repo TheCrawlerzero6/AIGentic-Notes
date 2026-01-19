@@ -84,7 +84,7 @@ class AiService implements IAiService {
                       description: 'Descripción detallada',
                       nullable: true,
                     ),
-                    'due_date': Schema.string(
+                    'dueDate': Schema.string(
                       description: 'Fecha ISO8601',
                       format: 'date-time',
                       nullable: true,
@@ -95,7 +95,7 @@ class AiService implements IAiService {
                       maximum: 3,
                     ),
                   },
-                  optionalProperties: ['description', 'due_date'],
+                  optionalProperties: ['description', 'dueDate'],
                 ),
               ),
             },
@@ -140,7 +140,7 @@ class AiService implements IAiService {
                             description: 'Descripción detallada',
                             nullable: true,
                           ),
-                          'due_date': Schema.string(
+                          'dueDate': Schema.string(
                             description: 'Fecha ISO8601',
                             format: 'date-time',
                             nullable: true,
@@ -151,7 +151,7 @@ class AiService implements IAiService {
                             maximum: 3,
                           ),
                         },
-                        optionalProperties: ['description', 'due_date'],
+                        optionalProperties: ['description', 'dueDate'],
                       ),
                     ),
                   },
@@ -175,7 +175,7 @@ class AiService implements IAiService {
                             description: 'Descripción detallada',
                             nullable: true,
                           ),
-                          'due_date': Schema.string(
+                          'dueDate': Schema.string(
                             description: 'Fecha ISO8601',
                             format: 'date-time',
                             nullable: true,
@@ -186,7 +186,7 @@ class AiService implements IAiService {
                             maximum: 3,
                           ),
                         },
-                        optionalProperties: ['description', 'due_date'],
+                        optionalProperties: ['description', 'dueDate'],
                       ),
                     ),
                   },
@@ -413,8 +413,8 @@ class AiService implements IAiService {
       final tasks = <TaskModel>[];
       for (var taskJson in tasksToProcess) {
         String? dueDateString;
-        if (taskJson['due_date'] != null) {
-          dueDateString = taskJson['due_date'] as String;
+        if (taskJson['dueDate'] != null) {
+          dueDateString = taskJson['dueDate'] as String;
         }
 
         tasks.add(
@@ -507,8 +507,8 @@ class AiService implements IAiService {
       final tasks = <TaskModel>[];
       for (var taskJson in tasksToProcess) {
         String? dueDateString;
-        if (taskJson['due_date'] != null) {
-          dueDateString = taskJson['due_date'] as String;
+        if (taskJson['dueDate'] != null) {
+          dueDateString = taskJson['dueDate'] as String;
         }
 
         tasks.add(
@@ -559,8 +559,8 @@ class AiService implements IAiService {
     ContentType type,
   ) {
     String? dueDateString;
-    if (taskJson['due_date'] != null) {
-      dueDateString = taskJson['due_date'] as String;
+    if (taskJson['dueDate'] != null) {
+      dueDateString = taskJson['dueDate'] as String;
     }
 
     final mappedSource = switch (type) {

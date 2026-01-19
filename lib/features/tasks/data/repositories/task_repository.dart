@@ -1,16 +1,18 @@
-import 'package:flutter/foundation.dart';
 import 'package:mi_agenda/core/data/models/task_model.dart';
 import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
 import 'package:mi_agenda/core/domain/entities/task.dart';
 import 'package:mi_agenda/core/domain/repositories/task_repository.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/constants.dart';
+import '../../../../core/data/services/notification_service.dart';
 import '../datasources/task_local_datasource.dart';
 
 class TaskRepository extends ITaskRepository {
   final TaskLocalDatasource dataSource;
+  final NotificationService notificationService;
 
-  TaskRepository({required this.dataSource});
+  TaskRepository({required this.dataSource, required this.notificationService});
 
   @override
   Future<int> createTask(CreateTaskDto data) async {
@@ -34,18 +36,22 @@ class TaskRepository extends ITaskRepository {
   Future<List<Task>> createTasksBatch(List<CreateTaskDto> tasks) async {
     if (tasks.isEmpty) return [];
 
-    final taskModels = tasks.map((data) => TaskModel(
-      title: data.title,
-      description: data.description,
-      dueDate: data.dueDate,
-      isCompleted: data.isCompleted,
-      notificationId: data.notificationId,
-      sourceType: data.sourceType,
-      priority: data.priority,
-      projectId: data.projectId,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    )).toList();
+    final taskModels = tasks
+        .map(
+          (data) => TaskModel(
+            title: data.title,
+            description: data.description,
+            dueDate: data.dueDate,
+            isCompleted: data.isCompleted,
+            notificationId: data.notificationId,
+            sourceType: data.sourceType,
+            priority: data.priority,
+            projectId: data.projectId,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+          ),
+        )
+        .toList();
 
     // OPTIMIZACIÓN: Usa insertBatch que retorna List<Task> con IDs
     final createdTasks = await dataSource.insertBatch(taskModels);
@@ -53,7 +59,9 @@ class TaskRepository extends ITaskRepository {
   }
 
   @override
-  Future<void> batchUpdateNotificationIds(Map<int, int> taskIdToNotificationId) async {
+  Future<void> batchUpdateNotificationIds(
+    Map<int, int> taskIdToNotificationId,
+  ) async {
     await dataSource.batchUpdateNotificationIds(taskIdToNotificationId);
   }
 
@@ -71,15 +79,39 @@ class TaskRepository extends ITaskRepository {
   @override
   Future<DetailedTaskDto?> getTaskDetail(int id) async {
     final task = await dataSource.getDetail(id);
+    dynamic notificationResult;
+    if (task.notificationId != null) {
+      try {
+        final dbService = await dataSource.db.database;
+        final notificationsList = await dbService.query(
+          Constants.tableNotifications,
+          where: "id = ?",
+          whereArgs: [task.notificationId],
+        );
+        final notificationRegistry = notificationsList.firstOrNull;
+        if (notificationRegistry == null) {
+          throw Exception("Task with $id has invalid notificationId");
+        }
+        notificationResult = Notification(
+          id: notificationRegistry["id"] as int,
+          notificationId: notificationRegistry["notificationId"] as int,
+          notificationDate: DateTime.parse(
+            notificationRegistry["notificationDate"] as String,
+          ),
+        );
+      } catch (error) {}
+    }
     return DetailedTaskDto(
       id: task.id!,
       title: task.title,
+      isCompleted: task.isCompleted,
+      sourceType: task.sourceType,
       description: task.description,
       dueDate: task.dueDate,
-      isCompleted: task.isCompleted,
       completedAt: task.completedAt,
+
       notificationId: task.notificationId,
-      sourceType: task.sourceType,
+      notification: notificationResult,
       priority: task.priority,
       projectId: task.projectId,
       createdAt: task.createdAt,
@@ -95,6 +127,12 @@ class TaskRepository extends ITaskRepository {
   @override
   Future<List<Task>> listAllTasks() async {
     return await dataSource.getAll();
+  }
+
+  
+  @override
+  Future<dynamic> getDatabase() async {
+    return await dataSource.db.database;
   }
 
   @override
@@ -127,10 +165,9 @@ class TaskRepository extends ITaskRepository {
   @override
   Future<int> deleteProjectAndTasks(int projectId) async {
     final database = await dataSource.db.database;
-    await database.rawDelete(
-      'DELETE FROM tasks WHERE projectId = ?',
-      [projectId],
-    );
+    await database.rawDelete('DELETE FROM tasks WHERE projectId = ?', [
+      projectId,
+    ]);
     final deletedProject = await database.rawDelete(
       'DELETE FROM projects WHERE id = ?',
       [projectId],
@@ -141,30 +178,32 @@ class TaskRepository extends ITaskRepository {
   @override
   Future<int> scheduleNotification(int id, DateTime notifDate) async {
     final currentTask = await dataSource.getDetail(id);
-    
-    if (currentTask.dueDate == null) {
-      throw Exception('La tarea no tiene fecha de vencimiento');
-    }
+    final dbService = await dataSource.db.database;
+    final due = currentTask.dueDate!;
 
-    final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+    final formattedDate = DateFormat('dd/MM/yyyy').format(due);
+    final formattedTime = DateFormat('HH:mm').format(due);
 
-    await dataSource.update(
-      TaskModel(
+    final body = 'Esta tarea vence el $formattedDate a las $formattedTime';
+    final notificationId = await notificationService.scheduleNotification(
+      title: currentTask.title,
+      body: body,
+      scheduledDate: notifDate,
+    );
+    final insertedNotificationId = await dbService
+        .insert(Constants.tableNotifications, {
+          "notificationId": notificationId,
+          "notificationDate": notifDate.toIso8601String(),
+          "updatedAt": DateTime.now().toIso8601String(),
+          "createdAt": DateTime.now().toIso8601String(),
+        });
+    return await updateTask(
+      id,
+      UpdateTaskDto(
         id: id,
-        title: currentTask.title,
-        description: currentTask.description,
-        dueDate: currentTask.dueDate,
-        isCompleted: currentTask.isCompleted,
-        notificationId: notificationId,
-        sourceType: currentTask.sourceType,
-        priority: currentTask.priority,
-        projectId: currentTask.projectId,
-        createdAt: currentTask.createdAt,
+        notificationId: insertedNotificationId,
         updatedAt: DateTime.now(),
       ),
     );
-
-    debugPrint('NotificationId $notificationId guardado en BD');
-    return notificationId;
   }
 }

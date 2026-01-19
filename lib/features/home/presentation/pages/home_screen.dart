@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   ),
                   Divider(),
                   if (state is HomeLoading)
-                    Center(child: CircularProgressIndicator())
+                    Expanded(child: Center(child: CircularProgressIndicator()))
                   else if (state is HomeProcessingAI)
                     Expanded(
                       child: Center(

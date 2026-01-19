@@ -10,14 +10,14 @@ Genera `lib/providers/task_provider.dart` y `lib/data/services/notification_serv
 Lógica de Orquestación:
 1. Agregar Tarea:
    - Inserta en SQLite usando `DatabaseHelper`.
-   - Genera `notification_id` aleatorio.
-   - Llama a `notificationService.schedule(...)` con el `due_date`.
+   - Genera `notificationId` aleatorio.
+   - Llama a `notificationService.schedule(...)` con el `dueDate`.
    - Recarga la lista del dashboard.
 2. Completar Tarea (Check):
-   - Update `is_completed = 1` y `completed_at = DateTime.now()`.
+   - Update `isCompleted = 1` y `completedAt = DateTime.now()`.
    - Llama a `notificationService.cancel(id)`.
 3. Descompletar:
-   - Update `is_completed = 0` y `completed_at = null`.
+   - Update `isCompleted = 0` y `completedAt = null`.
    - Reprograma notificación si la fecha es futura.
 
 Notificaciones:

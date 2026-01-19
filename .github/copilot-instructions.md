@@ -23,10 +23,10 @@ Fuente única de verdad. Crear estas 2 tablas obligatoriamente.
 - user_id (INTEGER FK)
 - title (TEXT)
 - description (TEXT)
-- due_date (TEXT ISO8601)
-- is_completed (INTEGER)
-- completed_at (TEXT ISO8601)
-- notification_id (INTEGER)
+- dueDate (TEXT ISO8601)
+- isCompleted (INTEGER)
+- completedAt (TEXT ISO8601)
+- notificationId (INTEGER)
 - source_type (TEXT)
 - priority (INTEGER)
 
@@ -34,13 +34,13 @@ Fuente única de verdad. Crear estas 2 tablas obligatoriamente.
 
 ### A. Visibilidad (Regla de las 48 Horas)
 La consulta SQL del Dashboard debe filtrar así:
-- Muestra TODAS las pendientes (is_completed = 0)
-- Muestra completadas (is_completed = 1) SOLO si completed_at es mayor a hace 2 días
+- Muestra TODAS las pendientes (isCompleted = 0)
+- Muestra completadas (isCompleted = 1) SOLO si completedAt es mayor a hace 2 días
 - Oculta las completadas antiguas para no saturar la vista
 
 ### B. Ciclo de Notificaciones
-- Al Crear: Generar notification_id y programar alerta local en due_date
-- Al Completar: Cancelar la alerta usando notification_id
+- Al Crear: Generar notificationId y programar alerta local en dueDate
+- Al Completar: Cancelar la alerta usando notificationId
 - Al Des-completar: Reprogramar la alerta si la fecha es futura
 
 ### C. Integración IA (firebase_ai)

@@ -15,7 +15,7 @@ Requisitos Técnicos:
 3. Function Calling (Tools):
    - Define una herramienta usando la clase `Tool` y `FunctionDeclaration`.
    - Nombre de función: `create_task`.
-   - Parámetros (Schema): `title` (string), `description` (string), `due_date` (string ISO8601), `priority` (int).
+   - Parámetros (Schema): `title` (string), `description` (string), `dueDate` (string ISO8601), `priority` (int).
    - Pasa esta herramienta al constructor del modelo.
 4. Métodos:
    - `generateFromVoice(File audioFile)`

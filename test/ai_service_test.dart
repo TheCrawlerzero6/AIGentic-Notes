@@ -51,7 +51,7 @@ void main() {
     {
       "title": "Comprar leche",
       "description": "En el super",
-      "due_date": "2026-01-04T15:00:00",
+      "dueDate": "2026-01-04T15:00:00",
       "priority": 2
     }
   ]
@@ -60,7 +60,7 @@ void main() {
 
       expect(validJson, contains('"tasks"'));
       expect(validJson, contains('"title"'));
-      expect(validJson, contains('"due_date"'));
+      expect(validJson, contains('"dueDate"'));
     });
   });
 

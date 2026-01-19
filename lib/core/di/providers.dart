@@ -63,6 +63,7 @@ final localProviders = [
   Provider<ITaskRepository>(
     create: (context) => TaskRepository(
       dataSource: context.read<TaskLocalDatasource>(),
+      notificationService: context.read<NotificationService>(),
     ),
   ),
 

@@ -86,46 +86,73 @@ class HomeCubit extends Cubit<HomeState> {
 
   /// OPTIMIZACIÓN: Programa notificaciones en paralelo y actualiza IDs en batch
   Future<void> _scheduleNotificationsForTasks(List<Task> tasks) async {
-    debugPrint('[DIAGNÓSTICO] _scheduleNotificationsForTasks llamado con ${tasks.length} tareas');
-    
+    debugPrint(
+      '[DIAGNÓSTICO] _scheduleNotificationsForTasks llamado con ${tasks.length} tareas',
+    );
+
     if (tasks.isEmpty) {
-      debugPrint('[DIAGNÓSTICO] Lista de tareas vacía, abortando programación de notificaciones');
+      debugPrint(
+        '[DIAGNÓSTICO] Lista de tareas vacía, abortando programación de notificaciones',
+      );
       return;
     }
 
     final now = DateTime.now();
     debugPrint('[DIAGNÓSTICO] Fecha actual: $now');
-    
+
     for (var i = 0; i < tasks.length; i++) {
       final task = tasks[i];
-      debugPrint('[DIAGNÓSTICO] Tarea $i: id=${task.id}, title=${task.title}, dueDate=${task.dueDate}');
+      debugPrint(
+        '[DIAGNÓSTICO] Tarea $i: id=${task.id}, title=${task.title}, dueDate=${task.dueDate}',
+      );
     }
-    
+
     final Map<int, int> taskIdToNotificationId = {};
 
     // OPTIMIZACIÓN 1: Programar notificaciones en paralelo usando Future.wait
     final notificationFutures = <Future<void>>[];
-    
+
     for (final task in tasks) {
       // Convertir ambas fechas a local para comparación correcta
       final taskDueDate = task.dueDate?.toLocal();
-      final isValidForScheduling = taskDueDate != null && taskDueDate.isAfter(now);
-      
-      debugPrint('[DIAGNÓSTICO] Tarea ${task.id}: dueDate local=$taskDueDate, isAfter=$isValidForScheduling');
-      
+      final isValidForScheduling =
+          taskDueDate != null && taskDueDate.isAfter(now);
+
+      debugPrint(
+        '[DIAGNÓSTICO] Tarea ${task.id}: dueDate local=$taskDueDate, isAfter=$isValidForScheduling',
+      );
+
       if (isValidForScheduling) {
-        final future = notificationService.scheduleNotification(
-          title: 'Recordatorio: ${task.title}',
-          body: task.description?.isNotEmpty == true ? task.description! : 'Tarea pendiente',
-          scheduledDate: taskDueDate!,
-          payload: 'task_reminder',
-        ).then((notificationId) {
-          taskIdToNotificationId[task.id!] = notificationId;
-          debugPrint('[DIAGNÓSTICO] Notificación programada exitosamente para tarea ${task.id}: notificationId=$notificationId');
-        }).catchError((e) {
-          debugPrint('[ERROR] Error programando notificación para tarea ${task.id}: $e');
-        });
-        
+        final future = notificationService
+            .scheduleNotification(
+              title: 'Recordatorio: ${task.title}',
+              body: task.description?.isNotEmpty == true
+                  ? task.description!
+                  : 'Tarea pendiente',
+              scheduledDate: taskDueDate,
+              payload: 'task_reminder',
+            )
+            .then((notificationId) async {
+              taskIdToNotificationId[task.id!] = notificationId;
+              final database = await taskRepository.getDatabase();
+              final insertedNotificationId = database
+                  .insert(Constants.tableNotifications, {
+                    "notificationId": notificationId,
+                    "notificationDate": taskDueDate.toIso8601String(),
+                    "updatedAt": DateTime.now().toIso8601String(),
+                    "createdAt": DateTime.now().toIso8601String(),
+                  });
+
+              debugPrint(
+                '[DIAGNÓSTICO] Notificación programada exitosamente para tarea ${task.id}: notificationId=$notificationId',
+              );
+            })
+            .catchError((e) {
+              debugPrint(
+                '[ERROR] Error programando notificación para tarea ${task.id}: $e',
+              );
+            });
+
         notificationFutures.add(future);
       }
     }
@@ -136,9 +163,13 @@ class HomeCubit extends Cubit<HomeState> {
     // OPTIMIZACIÓN 2: Actualizar todos los notificationId en 1 transacción
     if (taskIdToNotificationId.isNotEmpty) {
       try {
-        debugPrint('[DIAGNÓSTICO] Iniciando batch update de ${taskIdToNotificationId.length} notificationIds');
+        debugPrint(
+          '[DIAGNÓSTICO] Iniciando batch update de ${taskIdToNotificationId.length} notificationIds',
+        );
         await taskRepository.batchUpdateNotificationIds(taskIdToNotificationId);
-        debugPrint('[DIAGNÓSTICO] Batch update completado: ${taskIdToNotificationId.length} notificaciones programadas y guardadas');
+        debugPrint(
+          '[DIAGNÓSTICO] Batch update completado: ${taskIdToNotificationId.length} notificaciones programadas y guardadas',
+        );
       } catch (e) {
         debugPrint('[ERROR] Error actualizando notificationIds: $e');
       }
@@ -173,7 +204,9 @@ class HomeCubit extends Cubit<HomeState> {
         debugPrint(
           'Distribución completada: ${result.tasksCreated} tareas, ${result.projectsCreated} proyectos nuevos',
         );
-        debugPrint('[DIAGNÓSTICO] HomeCubit: result.createdTasks.length = ${result.createdTasks.length}');
+        debugPrint(
+          '[DIAGNÓSTICO] HomeCubit: result.createdTasks.length = ${result.createdTasks.length}',
+        );
 
         // NUEVA: Programar notificaciones para las tareas creadas
         await _scheduleNotificationsForTasks(result.createdTasks);
@@ -225,7 +258,9 @@ class HomeCubit extends Cubit<HomeState> {
       }
 
       debugPrint('Se crearon ${createdTasks.length} tareas');
-      debugPrint('[DIAGNÓSTICO] HomeCubit: createdTasks.length = ${createdTasks.length}');
+      debugPrint(
+        '[DIAGNÓSTICO] HomeCubit: createdTasks.length = ${createdTasks.length}',
+      );
 
       // NUEVA: Programar notificaciones para las tareas creadas
       await _scheduleNotificationsForTasks(createdTasks);

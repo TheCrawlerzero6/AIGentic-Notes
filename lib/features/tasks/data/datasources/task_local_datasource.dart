@@ -8,8 +8,8 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
     : super(tableName: Constants.tableTasks);
 
   /// Obtiene todas las tareas de un usuario con la REGLA DE 48 HORAS
-  /// - Muestra TODAS las pendientes (is_completed = 0)
-  /// - Muestra completadas (is_completed = 1) SOLO si completed_at > hace 2 días
+  /// - Muestra TODAS las pendientes (isCompleted = 0)
+  /// - Muestra completadas (isCompleted = 1) SOLO si completedAt > hace 2 días
   /// Marca una tarea como completada o pendiente (toggle)
   Future<int> toggleTaskComplete(int taskId, bool completed) async {
     try {
@@ -17,7 +17,7 @@ class TaskLocalDatasource extends BaseLocalDataSource<TaskModel> {
         tableName: tableName,
         id: taskId,
         entity: {
-          'is_completed': completed,
+          'isCompleted': completed,
           'completedAt': completed ? DateTime.now().toIso8601String() : null,
         },
       );

@@ -271,10 +271,10 @@ La aplicación usa SQLite local con dos tablas principales:
 | user_id          | INTEGER | NOT NULL, FOREIGN KEY → users(id) | Propietario de la tarea                        |
 | title            | TEXT    | NOT NULL                          | Título corto de la tarea                       |
 | description      | TEXT    | NULL                              | Descripción detallada opcional                 |
-| due_date         | TEXT    | NOT NULL                          | Fecha de vencimiento (ISO8601)                 |
-| is_completed     | INTEGER | NOT NULL DEFAULT 0                | Estado: 0 = pendiente, 1 = completada          |
-| completed_at     | TEXT    | NULL                              | Timestamp de completado (ISO8601)              |
-| notification_id  | INTEGER | NULL                              | ID para gestionar notificaciones               |
+| dueDate         | TEXT    | NOT NULL                          | Fecha de vencimiento (ISO8601)                 |
+| isCompleted     | INTEGER | NOT NULL DEFAULT 0                | Estado: 0 = pendiente, 1 = completada          |
+| completedAt     | TEXT    | NULL                              | Timestamp de completado (ISO8601)              |
+| notificationId  | INTEGER | NULL                              | ID para gestionar notificaciones               |
 | source_type      | TEXT    | NOT NULL                          | Origen: 'manual', 'voice', 'image', 'file'     |
 | priority         | INTEGER | NOT NULL DEFAULT 2                | Prioridad: 1 = Baja, 2 = Media, 3 = Alta       |
 
@@ -334,7 +334,7 @@ La aplicación ofrece cuatro métodos para crear tareas, cada uno optimizado par
 4. La imagen se comprime y convierte a bytes (Uint8List)
 5. `AiService.processImage()` envía bytes al API de Gemini con prompt específico
 6. Gemini analiza el texto en la imagen usando visión multimodal
-7. IA devuelve JSON con estructura: `{tasks: [{title, description, due_date, priority}]}`
+7. IA devuelve JSON con estructura: `{tasks: [{title, description, dueDate, priority}]}`
 8. Sistema parsea JSON y autocompleta campos del formulario
 9. Usuario revisa/edita antes de confirmar
 
@@ -351,7 +351,7 @@ Devuelve UN SOLO objeto JSON con:
   "tasks": [{
     "title": "Título corto",
     "description": "Descripción detallada",
-    "due_date": "2026-01-15T14:30:00" o null,
+    "dueDate": "2026-01-15T14:30:00" o null,
     "priority": 1-3
   }]
 }
@@ -359,7 +359,7 @@ Devuelve UN SOLO objeto JSON con:
 
 **Ejemplo de Uso**:
 - Usuario toma foto de nota adhesiva: "Reunión con cliente - Viernes 3pm"
-- IA infiere: `title: "Reunión con cliente"`, `due_date: "2026-01-10T15:00:00"`, `priority: 2`
+- IA infiere: `title: "Reunión con cliente"`, `dueDate: "2026-01-10T15:00:00"`, `priority: 2`
 
 **Archivo**: `lib/data/services/ai_service.dart` → `_processImage()`
 
@@ -387,13 +387,13 @@ Devuelve UN SOLO objeto JSON con:
 **Prompt de IA**:
 ```
 Transcribe este audio y extrae la tarea mencionada.
-Devuelve JSON con: title, description, due_date, priority.
+Devuelve JSON con: title, description, dueDate, priority.
 Infiere prioridad del tono y palabras clave ("urgente", "importante").
 ```
 
 **Ejemplo de Uso**:
 - Usuario dice: "Recordarme comprar leche mañana a las 6 de la tarde"
-- IA genera: `title: "Comprar leche"`, `due_date: "2026-01-04T18:00:00"`, `priority: 1`
+- IA genera: `title: "Comprar leche"`, `dueDate: "2026-01-04T18:00:00"`, `priority: 1`
 
 **Archivo**: `lib/data/services/ai_service.dart` → `_processAudio()`
 
@@ -609,7 +609,7 @@ AiService.processImage(bytes)
     ↓
 Gemini API procesa imagen
     ↓
-Respuesta JSON: {tasks: [{title, description, due_date, priority}]}
+Respuesta JSON: {tasks: [{title, description, dueDate, priority}]}
     ↓
 AiService parsea JSON y crea TaskModel
     ↓
@@ -629,13 +629,13 @@ TaskProvider.toggleTaskCompletion(task)
     ↓
 ¿Tarea actualmente pendiente?
     ├── SÍ: 
-    │   ├── Set is_completed = 1
-    │   ├── Set completed_at = DateTime.now()
-    │   └── NotificationService.cancel(notification_id)
+    │   ├── Set isCompleted = 1
+    │   ├── Set completedAt = DateTime.now()
+    │   └── NotificationService.cancel(notificationId)
     └── NO:
-        ├── Set is_completed = 0
-        ├── Set completed_at = null
-        └── ¿due_date es futuro?
+        ├── Set isCompleted = 0
+        ├── Set completedAt = null
+        └── ¿dueDate es futuro?
             ├── SÍ: NotificationService.schedule()
             └── NO: No reprogramar
     ↓
@@ -651,7 +651,7 @@ notifyListeners() → UI actualizada
 ```
 [Creación de Tarea]
     ↓
-Se genera notification_id aleatorio
+Se genera notificationId aleatorio
     ↓
 NotificationService.schedule(id, title, dueDate)
     ↓
@@ -661,7 +661,7 @@ FlutterLocalNotifications.zonedSchedule()
     ↓
 Notificación programada en sistema operativo
     ↓
----[Al llegar due_date]---
+---[Al llegar dueDate]---
     ↓
 Sistema muestra notificación local
     ↓
@@ -685,10 +685,10 @@ App abre (onNotificationTap)
 SELECT * FROM tasks 
 WHERE user_id = ? 
   AND (
-    is_completed = 0 
-    OR (is_completed = 1 AND julianday('now') - julianday(completed_at) <= 2)
+    isCompleted = 0 
+    OR (isCompleted = 1 AND julianday('now') - julianday(completedAt) <= 2)
   )
-ORDER BY due_date ASC
+ORDER BY dueDate ASC
 ```
 
 **Justificación**: Mantiene el dashboard limpio y enfocado en tareas activas, mientras permite al usuario ver logros recientes.
@@ -696,17 +696,17 @@ ORDER BY due_date ASC
 ### Regla 2: Ciclo de Vida de Notificaciones
 
 **Al Crear Tarea**:
-- Se genera `notification_id` aleatorio único
-- Se programa notificación local para `due_date`
+- Se genera `notificationId` aleatorio único
+- Se programa notificación local para `dueDate`
 - La notificación persiste hasta que se cancele manualmente
 
 **Al Completar Tarea**:
-- Se cancela la notificación usando `notification_id`
-- Se actualiza `is_completed = 1` y `completed_at = DateTime.now()`
+- Se cancela la notificación usando `notificationId`
+- Se actualiza `isCompleted = 1` y `completedAt = DateTime.now()`
 
 **Al Descompletar Tarea**:
-- Si `due_date` es futuro: se reprograma la notificación
-- Si `due_date` es pasado: no se programa notificación
+- Si `dueDate` es futuro: se reprograma la notificación
+- Si `dueDate` es pasado: no se programa notificación
 
 ### Regla 3: Validación de Campos Obligatorios
 

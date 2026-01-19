@@ -13,7 +13,7 @@ class SystemCubit extends Cubit<SystemState> {
   final IProjectRepository projectRepository;
   final AuthCubit authCubit;
   final NotificationService notificationService;
-  
+
   SystemCubit({
     required this.repository,
     required this.projectRepository,
@@ -75,24 +75,32 @@ class SystemCubit extends Cubit<SystemState> {
 
       if (willBeCompleted && currentTask.notificationId != null) {
         try {
-          await notificationService.cancelNotification(currentTask.notificationId!);
+          await notificationService.cancelNotification(
+            currentTask.notificationId!,
+          );
         } catch (e) {
           debugPrint('Error al cancelar notificacion: $e');
         }
-      } else if (!willBeCompleted && currentTask.dueDate != null && currentTask.dueDate!.isAfter(DateTime.now())) {
+      } else if (!willBeCompleted &&
+          currentTask.dueDate != null &&
+          currentTask.dueDate!.isAfter(DateTime.now())) {
         try {
-          final newNotificationId = await notificationService.scheduleNotification(
-            title: 'Recordatorio: ${currentTask.title}',
-            body: currentTask.description ?? 'Tarea pendiente',
-            scheduledDate: currentTask.dueDate!,
-            payload: 'task_reminder',
+          final newNotificationId = await notificationService
+              .scheduleNotification(
+                title: 'Recordatorio: ${currentTask.title}',
+                body: currentTask.description ?? 'Tarea pendiente',
+                scheduledDate: currentTask.dueDate!,
+                payload: 'task_reminder',
+              );
+
+          await repository.updateTask(
+            id,
+            UpdateTaskDto(
+              id: id,
+              notificationId: newNotificationId,
+              updatedAt: DateTime.now(),
+            ),
           );
-          
-          await repository.updateTask(id, UpdateTaskDto(
-            id: id,
-            notificationId: newNotificationId,
-            updatedAt: DateTime.now(),
-          ));
         } catch (e) {
           debugPrint('Error al reprogramar notificacion: $e');
         }

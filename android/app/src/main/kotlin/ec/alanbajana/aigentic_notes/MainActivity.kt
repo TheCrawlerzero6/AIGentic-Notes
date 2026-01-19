@@ -1,4 +1,4 @@
-package ec.alanbajana.aigentic_notes
+package com.example.mi_agenda
 
 import io.flutter.embedding.android.FlutterActivity
 

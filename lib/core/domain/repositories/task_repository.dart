@@ -12,6 +12,7 @@ abstract class ITaskRepository {
   Future<void> batchUpdateNotificationIds(Map<int, int> taskIdToNotificationId);
   Future<int> updateTask(int id, UpdateTaskDto data);
   Future<int> deleteTask(int id);
+  Future<dynamic> getDatabase();
 
   Future<int> toggleTaskComplete(int id);
   Future<int> deleteProjectAndTasks(int projectId);
