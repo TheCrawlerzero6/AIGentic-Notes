@@ -21,6 +21,7 @@ import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/home/data/repositories/project_repository.dart';
+import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../data/services/notification_service.dart';
 
 // import 'ui/screens/home/home_screen.dart';
@@ -94,5 +95,14 @@ final localProviders = [
       taskRepository: context.read<ITaskRepository>(),
       projectRepository: context.read<IProjectRepository>(),
     ),
+  ),
+  BlocProvider(
+    create: (context) => HomeCubit(
+      repository: context.read<IProjectRepository>(),
+      authCubit: context.read<AuthCubit>(),
+      processImageUseCase: context.read<ProcessAiImageUseCase>(),
+      processAudioUseCase: context.read<ProcessAiAudioUseCase>(),
+      processDistributionUseCase: context.read<ProcessAiDistributionUseCase>(),
+    )..listProjects(),
   ),
 ];

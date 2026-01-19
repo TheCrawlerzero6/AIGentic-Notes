@@ -74,7 +74,7 @@ class TaskRepository extends ITaskRepository {
   @override
   Future<DetailedTaskDto?> getTaskDetail(int id) async {
     final task = await dataSource.getDetail(id);
-    dynamic notificationResult = null;
+    dynamic notificationResult;
     if (task.notificationId != null) {
       final dbService = await dataSource.db.database;
       final notificationsList = await dbService.query(

@@ -15,10 +15,6 @@ import '../../features/auth/presentation/cubit/auth_state.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/profile_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
-import '../../features/home/domain/usecases/process_ai_audio.dart';
-import '../../features/home/domain/usecases/process_ai_distribution.dart';
-import '../../features/home/domain/usecases/process_ai_image.dart';
-import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../domain/repositories/task_repository.dart';
 import '../../features/tasks/presentation/cubit/system_cubit.dart';
 import '../../features/tasks/presentation/cubit/task_cubit.dart';
@@ -112,19 +108,8 @@ class AppRouter {
         ),
         GoRoute(
           path: '/home',
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => HomeCubit(
-                repository: context.read<IProjectRepository>(),
-                authCubit: context.read<AuthCubit>(),
-                processImageUseCase: context.read<ProcessAiImageUseCase>(),
-                processAudioUseCase: context.read<ProcessAiAudioUseCase>(),
-                processDistributionUseCase: context
-                    .read<ProcessAiDistributionUseCase>(),
-              )..listProjects(),
-              child: HomeScreen(),
-            );
-          },
+          builder: (_,__) => const HomeScreen()
+          
         ),
         GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
         GoRoute(path: '/search', builder: (_, __) => const WIPScreen()),
