@@ -21,6 +21,7 @@ import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/home/data/repositories/project_repository.dart';
+import '../data/services/notification_service.dart';
 
 // import 'ui/screens/home/home_screen.dart';
 final localProviders = [
@@ -59,8 +60,10 @@ final localProviders = [
         ProjectRepository(dataSource: context.read<ProjectLocalDatasource>()),
   ),
   Provider<ITaskRepository>(
-    create: (context) =>
-        TaskRepository(dataSource: context.read<TaskLocalDatasource>()),
+    create: (context) => TaskRepository(
+      dataSource: context.read<TaskLocalDatasource>(),
+      notificationService: context.read<NotificationService>(),
+    ),
   ),
 
   BlocProvider<AuthCubit>(

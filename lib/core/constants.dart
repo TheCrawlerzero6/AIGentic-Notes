@@ -7,6 +7,8 @@ class Constants {
   static const String tableUsers = 'users';
   static const String tableProjects = 'projects';
   static const String tableTasks = 'tasks';
+  
+  static const String tableNotifications = 'notifications';
 
   // Prioridades
   static const int priorityLow = 1;

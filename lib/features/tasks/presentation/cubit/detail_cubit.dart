@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../presentation/cubit/detail_state.dart';
 
 import '../../../../core/domain/dtos/task_dtos.dart';
-import '../../../../core/domain/entities/task.dart';
 import '../../../../core/domain/repositories/project_repository.dart';
 import '../../../../core/domain/repositories/task_repository.dart';
 
@@ -16,7 +15,7 @@ class DetailCubit extends Cubit<DetailState> {
     required this.taskId,
   }) : super(DetailInitial());
 
-  Task? get selectedTask {
+  DetailedTaskDto? get selectedTask {
     if (state is DetailSuccess) {
       return (state as DetailSuccess).selectedTask;
     }
@@ -27,8 +26,6 @@ class DetailCubit extends Cubit<DetailState> {
     emit(DetailLoading());
 
     try {
-    
-
       final task = data;
 
       await repository.updateTask(task.id, task);
@@ -48,7 +45,7 @@ class DetailCubit extends Cubit<DetailState> {
       if (task == null) {
         throw Exception("Task with id $taskId not found");
       }
-      await repository.deleteTask(task.id!);
+      await repository.deleteTask(task.id);
     } catch (e) {
       emit(DetailError(message: e.toString()));
       rethrow;
@@ -77,9 +74,33 @@ class DetailCubit extends Cubit<DetailState> {
       if (project == null) {
         throw Exception("Project with id ${task.projectId} not found");
       }
-      emit(DetailSuccess(selectedTask: task, selectedProject: project));
+      emit(
+        DetailSuccess(
+          selectedTask: DetailedTaskDto(
+            id: task.id,
+            title: task.title,
+            dueDate: task.dueDate,
+            isCompleted: task.isCompleted,
+            notificationId: task.notificationId,
+            notification: task.notification,
+            sourceType: task.sourceType,
+            priority: task.priority,
+            projectId: task.projectId,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+          ),
+          selectedProject: project,
+        ),
+      );
     } catch (e) {
       emit(DetailError(message: e.toString()));
     }
+  }
+
+  Future<int> scheduleNotification(
+    int taskId,
+    DateTime notificationDate,
+  ) async {
+    return await repository.scheduleNotification(taskId, notificationDate);
   }
 }

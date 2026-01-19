@@ -1,3 +1,49 @@
+class Notification {
+  final int id;
+  final int notificationId;
+  final DateTime notificationDate;
+
+  Notification({
+    required this.id,
+    required this.notificationId,
+    required this.notificationDate,
+  });
+}
+
+class DetailedTaskDto {
+  final int id;
+  final String title;
+  final String? description;
+  final DateTime? dueDate;
+  final bool isCompleted;
+  final DateTime? completedAt;
+  final int? notificationId;
+  final Notification? notification;
+  final String sourceType;
+  final int priority;
+
+  final int projectId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  DetailedTaskDto({
+    required this.id,
+    required this.title,
+    this.description,
+
+    this.dueDate,
+    required this.isCompleted,
+    this.completedAt,
+    this.notificationId,
+    this.notification,
+    required this.sourceType,
+    required this.priority,
+    required this.projectId,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+}
+
 class CreateTaskDto {
   final String title;
   final String? description;

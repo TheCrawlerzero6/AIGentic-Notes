@@ -11,8 +11,8 @@ import 'package:timezone/data/latest_all.dart' as tz;
 /// - Cancelación de notificaciones
 /// - Permisos en Android/iOS
 class NotificationService {
-  static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
+  static final NotificationService instance = NotificationService._internal();
+  factory NotificationService() => instance;
   NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();

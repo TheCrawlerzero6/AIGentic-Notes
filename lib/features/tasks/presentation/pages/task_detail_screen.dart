@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
 
-import '../../../../core/domain/entities/task.dart';
 import '../cubit/detail_cubit.dart';
 import '../cubit/detail_state.dart';
 import '../widgets/radio_checkbox.dart';
@@ -23,12 +22,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   late TextEditingController? _descCtrl;
   late DateTime? _selectedDate;
   late TimeOfDay? _selectedTime;
+
+  late DateTime? _selectedNotificationDate;
+  late TimeOfDay? _selectedNotificationTime;
   late int _priority = 2;
   late bool _isCompleted = false;
 
   bool _initialized = false;
 
-  void _initFromTask(Task task) {
+  void _initFromTask(DetailedTaskDto task) {
     _titleCtrl = TextEditingController(text: task.title);
     _descCtrl = TextEditingController(text: task.description);
 
@@ -37,7 +39,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     _selectedTime = parsedDate != null
         ? TimeOfDay.fromDateTime(parsedDate)
         : null;
-
+    _selectedNotificationDate = task.notification?.notificationDate;
+    _selectedNotificationTime = task.notification?.notificationDate != null
+        ? TimeOfDay.fromDateTime(task.notification!.notificationDate)
+        : null;
     _priority = task.priority;
     _isCompleted = task.isCompleted;
 
@@ -60,6 +65,31 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
     if (pickedDate != null) {
       setState(() => _selectedDate = pickedDate);
+    }
+  }
+
+  Future<void> _pickNotificationDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedNotificationDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (pickedDate != null) {
+      setState(() => _selectedNotificationDate = pickedDate);
+    }
+  }
+
+  Future<void> _pickNotificationTime() async {
+    final pickedTime = await showDialog<TimeOfDay>(
+      context: context,
+      builder: (context) => TimePickerSpinner(
+        initialTime: _selectedNotificationTime ?? TimeOfDay.now(),
+        onTimeSelected: (selectedTime) {},
+      ),
+    );
+    if (pickedTime != null) {
+      setState(() => _selectedNotificationTime = pickedTime);
     }
   }
 
@@ -96,11 +126,23 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             _selectedTime!.minute,
           )
         : null;
+
+    final notificationDateTime =
+        (_selectedNotificationDate != null && _selectedNotificationTime != null)
+        ? DateTime(
+            _selectedNotificationDate!.year,
+            _selectedNotificationDate!.month,
+            _selectedNotificationDate!.day,
+            _selectedNotificationTime!.hour,
+            _selectedNotificationTime!.minute,
+          )
+        : null;
+
     final task = context.read<DetailCubit>().selectedTask;
     if (task == null) return;
 
     final updatedTask = UpdateTaskDto(
-      id: task.id!,
+      id: task.id,
       projectId: task.projectId,
       title: _titleCtrl?.text.trim() ?? "",
       description: _descCtrl?.text.trim() ?? "",
@@ -116,6 +158,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     try {
       await context.read<DetailCubit>().updateTask(updatedTask);
+
+      if (!mounted) return;
+      if (notificationDateTime != null) {
+        await context.read<DetailCubit>().scheduleNotification(
+          task.id,
+          notificationDateTime,
+        );
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -232,11 +282,36 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                             ),
                                             child: Divider(),
                                           ),
-                                          _editInput(
-                                            icon: Icons.notifications,
-                                            controller: TextEditingController(),
-                                            placeholder: "Recordármelo cada...",
-                                            isEditing: isEditing,
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                              right: 8,
+                                              top: 12,
+                                              bottom: 4,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child:
+                                                      _editNotificationDatePicker(
+                                                        icon:
+                                                            Icons.notifications,
+                                                        placeholder:
+                                                            "Fecha Límite",
+                                                        isEditing: isEditing,
+                                                      ),
+                                                ),
+                                                Expanded(
+                                                  child:
+                                                      _editNotificationTimePicker(
+                                                        icon: Icons.access_time,
+                                                        placeholder:
+                                                            "Hora Límite",
+                                                        isEditing: isEditing,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -253,38 +328,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                         ],
                                       ),
                                     ),
-
-                                    // const SizedBox(height: 20),
-                                    // _detailCard(
-                                    //   editInput: SegmentedButton<int>(
-                                    //     segments: const [
-                                    //       ButtonSegment(
-                                    //         value: 1,
-                                    //         label: Text('Baja'),
-                                    //         icon: Icon(Icons.arrow_downward),
-                                    //       ),
-                                    //       ButtonSegment(
-                                    //         value: 2,
-                                    //         label: Text('Media'),
-                                    //         icon: Icon(Icons.remove),
-                                    //       ),
-                                    //       ButtonSegment(
-                                    //         value: 3,
-                                    //         label: Text('Alta'),
-                                    //         icon: Icon(Icons.arrow_upward),
-                                    //       ),
-                                    //     ],
-                                    //     selected: {_priority},
-                                    //     onSelectionChanged: isEditing
-                                    //         ? (Set<int> selected) {
-                                    //             setState(
-                                    //               () => _priority = selected.first,
-                                    //             );
-                                    //           }
-                                    //         : null,
-                                    //   ),
-                                    // ),
-                                    // const SizedBox(height: 20),
                                   ],
                                 ),
 
@@ -345,6 +388,73 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _editNotificationTimePicker({
+    required IconData icon,
+    required String placeholder,
+    required bool isEditing,
+
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+
+      child: Row(
+        spacing: 16,
+        children: [
+          Icon(icon),
+          InkWell(
+            onTap: isEditing ? _pickNotificationTime : null,
+            child: SizedBox(
+              child: Text(
+                _selectedNotificationTime != null
+                    ? MaterialLocalizations.of(context).formatTimeOfDay(
+                        _selectedNotificationTime!,
+                        alwaysUse24HourFormat: false,
+                      )
+                    : placeholder,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _editNotificationDatePicker({
+    required IconData icon,
+    required String placeholder,
+    required bool isEditing,
+
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+
+      child: Row(
+        spacing: 16,
+        children: [
+          Icon(icon),
+          InkWell(
+            onTap: isEditing ? _pickNotificationDate : null,
+            child: SizedBox(
+              child: Text(
+                _selectedNotificationDate != null
+                    ? DateFormat(
+                        'dd/MM/yyyy',
+                      ).format(_selectedNotificationDate!)
+                    : placeholder,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -465,7 +575,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _listItemEditable({required Task task, required bool isEditing}) {
+  Widget _listItemEditable({
+    required DetailedTaskDto task,
+    required bool isEditing,
+  }) {
     return Material(
       color: Theme.of(context).appBarTheme.backgroundColor,
       child: ListTile(

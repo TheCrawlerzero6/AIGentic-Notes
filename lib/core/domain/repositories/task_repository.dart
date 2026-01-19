@@ -3,10 +3,9 @@ import '../dtos/task_dtos.dart';
 import '../entities/task.dart';
 
 abstract class ITaskRepository {
-  
   Future<List<Task>> listAllTasks();
   Future<List<Task>> listTasks(int projectId);
-  Future<Task?> getTaskDetail(int id);
+  Future<DetailedTaskDto?> getTaskDetail(int id);
 
   Future<int> createTask(CreateTaskDto data);
   Future<int> createTasksBatch(List<CreateTaskDto> tasks);
@@ -16,4 +15,5 @@ abstract class ITaskRepository {
   Future<int> toggleTaskComplete(int id);
   Future<int> deleteProjectAndTasks(int projectId);
   Future<int> deleteMassiveOldTasks(int id);
+  Future<int> scheduleNotification(int id, DateTime notifDate);
 }

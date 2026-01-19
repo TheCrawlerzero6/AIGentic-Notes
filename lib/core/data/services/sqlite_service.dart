@@ -74,6 +74,17 @@ class SqliteService {
         updatedAt TEXT NOT NULL,
         projectId INTEGER NOT NULL,
         FOREIGN KEY (projectId) REFERENCES ${Constants.tableProjects} (id) ON DELETE CASCADE
+        FOREIGN KEY (notificationId) REFERENCES ${Constants.tableNotifications} (id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ${Constants.tableNotifications} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        notificationId INTEGER,
+        notificationDate TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        createdAt TEXT NOT NULL
       )
     ''');
 

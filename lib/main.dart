@@ -37,19 +37,15 @@ void main() async {
   //   debugPrint('Error al inicializar base de datos: $e');
   // }
 
-  NotificationService()
-      .initialize()
-      .then((_) async {
-        await NotificationService().requestPermissions();
-      })
-      .catchError((e) {
-        debugPrint('Error al inicializar notificaciones: $e');
-      });
+  final notificationService = NotificationService.instance;
+  await notificationService.initialize();
+  await notificationService.requestPermissions();
 
   runApp(
     MultiProvider(
       providers: [
         Provider<SharedPreferences>.value(value: prefs),
+        Provider<NotificationService>.value(value: notificationService),
         ...localProviders,
       ],
       child: const MyApp(),

@@ -1,5 +1,6 @@
+import 'package:mi_agenda/core/domain/dtos/task_dtos.dart';
+
 import '../../../../core/domain/dtos/project_dtos.dart';
-import '../../../../core/domain/entities/task.dart';
 
 abstract class DetailState {
   DetailState();
@@ -14,7 +15,7 @@ class DetailLoading extends DetailState {
 }
 
 class DetailSuccess extends DetailState {
-  final Task selectedTask;
+  final DetailedTaskDto selectedTask;
   final DetailedProjectDto selectedProject;
   DetailSuccess({required this.selectedTask, required this.selectedProject});
 }
